@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AEV Planner Pro</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+<style>
+
+body{
+    margin:0;
+    background:#0f172a;
+    font-family:Vazirmatn;
+    color:#fff;
+}
+
+#planner{
+    width:1100px;
+    margin:20px auto;
+    background:#0b1220;
+    padding:20px;
+    border-radius:18px;
+}
+
+.header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:15px;
+}
+
+.title{
+    font-size:20px;
+    font-weight:800;
+    color:#38bdf8;
+}
+
+.layout{
+    display:flex;
+    gap:15px;
+}
+
+.col{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+}
+
+.card{
+    background:#111827;
+    border:1px solid #1f2937;
+    border-radius:14px;
+    padding:12px;
+}
+
+.section-title{
+    font-size:13px;
+    font-weight:700;
+    color:#fbbf24;
+}
+
+input,textarea,select{
+    width:100%;
+    background:#0b1220;
+    border:1px solid #334155;
+    color:white;
+    padding:8px;
+    border-radius:10px;
+    margin-top:6px;
+    box-sizing:border-box;
+    font-family:Vazirmatn;
+    font-size:12px;
+}
+
+textarea{resize:none}
+
+#notes{
+    height:260px;
+}
+
+.schedule{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    max-height:420px;
+    overflow:auto;
+}
+
+.time-row{
+    display:flex;
+    gap:8px;
+}
+
+.time{
+    width:70px;
+    color:#38bdf8;
+}
+
+.center{
+    text-align:center;
+    margin-top:15px;
+}
+
+button{
+    background:linear-gradient(135deg,#38bdf8,#6366f1);
+    border:none;
+    padding:10px 16px;
+    margin:5px;
+    border-radius:10px;
+    color:white;
+    cursor:pointer;
+    font-weight:600;
+}
+
+button:hover{transform:scale(1.05)}
+
+</style>
+</head>
+
+<body>
+
+<div id="planner">
+
+<div class="header">
+    <div class="title">A.E.V PLANNER — AFTER EDIT VISION</div>
+    <input id="date" placeholder="140 / /" style="width:140px">
+</div>
+
+<div class="layout">
+
+    <!-- RIGHT -->
+    <div class="col">
+
+        <div class="card">
+            <div class="section-title">🧭 اهداف سالانه</div>
+            <textarea id="g1"></textarea>
+            <textarea id="g2"></textarea>
+            <textarea id="g3"></textarea>
+        </div>
+
+        <div class="card">
+            <div class="section-title">⚡ وضعیت انرژی</div>
+            <select id="energy">
+                <option>🟢 بالا</option>
+                <option>🟡 متوسط</option>
+                <option>🔴 کم</option>
+            </select>
+            <textarea id="energy_reason"></textarea>
+        </div>
+
+        <div class="card">
+            <div class="section-title">🔥 MIP امروز</div>
+            <textarea id="mip"></textarea>
+        </div>
+
+        <div class="card">
+            <div class="section-title">💡  ایده های امروز</div>
+            <textarea id="ideas"></textarea>
+        </div>
+
+        <div class="card">
+            <div class="section-title">📝 یادداشت‌ها</div>
+            <textarea id="notes"></textarea>
+        </div>
+
+    </div>
+
+    <!-- LEFT -->
+    <div class="col">
+
+        <div class="card">
+            <div class="section-title">📊 قانون 3-2-1</div>
+
+            <div>3 کار بزرگ</div>
+            <input id="b1">
+            <input id="b2">
+            <input id="b3">
+
+            <div style="margin-top:8px">2 کار متوسط</div>
+            <input id="m1">
+            <input id="m2">
+
+            <div style="margin-top:8px">1 کار شخصی</div>
+            <input id="p1">
+        </div>
+
+        <div class="card">
+            <div class="section-title">⏰ برنامه زمانی</div>
+            <div class="schedule" id="schedule"></div>
+        </div>
+
+        <div class="card">
+            <div class="section-title">🏁 موفقیت های  روز</div>
+            <textarea id="end1"></textarea>
+            <textarea id="end2"></textarea>
+            <textarea id="end3"></textarea>
+            <input id="score">
+            <textarea id="tomorrow"></textarea>
+        </div>
+
+    </div>
+
+</div>
+
+<div class="center">
+    <button onclick="savePNG()">PNG</button>
+    <button onclick="savePDF()">PDF</button>
+
+    <button onclick="exportData()">💾 ذخیره لوکال</button>
+    <button onclick="importClick()">📂 JSON بارگذاری</button>
+
+    <input type="file" id="fileInput" style="display:none" onchange="importData(event)">
+</div>
+
+</div>
+
+<script>
+
+// schedule
+const schedule=document.getElementById("schedule");
+for(let h=4;h<=23;h++){
+    const row=document.createElement("div");
+    row.className="time-row";
+    row.innerHTML=`
+        <input class="time" value="${h}:00">
+        <input id="t_${h}" placeholder="کار...">
+    `;
+    schedule.appendChild(row);
+}
+
+// ===== SAVE / LOAD CORE =====
+
+function getAllData(){
+    const data = {};
+    document.querySelectorAll("input,textarea,select").forEach(el=>{
+        if(el.id){
+            data[el.id] = el.value;
+        }
+    });
+    return data;
+}
+
+function setAllData(data){
+    document.querySelectorAll("input,textarea,select").forEach(el=>{
+        if(el.id && data[el.id] !== undefined){
+            el.value = data[el.id];
+        }
+    });
+}
+
+// autosave (real)
+document.addEventListener("input",()=>{
+    localStorage.setItem("AEV_PLANNER", JSON.stringify(getAllData()));
+});
+
+// load saved
+window.onload=()=>{
+    const saved = localStorage.getItem("AEV_PLANNER");
+    if(saved){
+        setAllData(JSON.parse(saved));
+    }
+};
+
+// export file
+function exportData(){
+    const blob = new Blob(
+        [JSON.stringify(getAllData())],
+        {type:"application/json"}
+    );
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "AEV-Planner-Backup.json";
+    a.click();
+}
+
+// import file
+function importClick(){
+    document.getElementById("fileInput").click();
+}
+
+function importData(event){
+    const file = event.target.files[0];
+    const reader = new FileReader();
+
+    reader.onload = function(e){
+        const data = JSON.parse(e.target.result);
+        setAllData(data);
+    };
+
+    reader.readAsText(file);
+}
+
+// PNG
+async function savePNG(){
+    const canvas=await html2canvas(document.getElementById("planner"),{
+        scale:2,
+        useCORS:true,
+        scrollY:0
+    });
+
+    const a=document.createElement("a");
+    a.download="AEV.png";
+    a.href=canvas.toDataURL("image/png");
+    a.click();
+}
+
+// PDF
+async function savePDF(){
+    const canvas=await html2canvas(document.getElementById("planner"),{
+        scale:2,
+        useCORS:true,
+        scrollY:0
+    });
+
+    const img=canvas.toDataURL("image/png");
+    const { jsPDF }=window.jspdf;
+
+    const pdf=new jsPDF("p","mm","a4");
+
+    const imgWidth=210;
+    const imgHeight=(canvas.height * imgWidth) / canvas.width;
+
+    pdf.addImage(img,"PNG",0,0,imgWidth,imgHeight);
+    pdf.save("AEV.pdf");
+}
+
+</script>
+
+</body>
+</html>
