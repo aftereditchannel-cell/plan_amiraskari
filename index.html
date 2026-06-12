@@ -1,338 +1,647 @@
-<!DOCTYPE html>
-<html lang="fa" dir="rtl">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AEV Planner Pro</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#C9A84C;--gold-dim:#8B6A2A;--gold-light:#E8C97A;
+  --bg:#0F0F0F;--bg2:#1C1C1E;--bg3:#252527;--bg4:#2E2E30;
+  --border:rgba(201,168,76,0.15);--border2:rgba(201,168,76,0.3);
+  --text:#F0EDE8;--text2:#A09B92;--text3:#6B6660;
+  --green:#2DBD8C;--green-dim:#1A7A5A;--green-bg:rgba(45,189,140,0.1);
+  --yellow:#E8A020;--yellow-bg:rgba(232,160,32,0.1);
+  --red:#E05252;--red-bg:rgba(224,82,82,0.1);
+  --radius:12px;--radius-sm:8px;
+}
+body{font-family:'Vazirmatn',sans-serif;direction:rtl;background:var(--bg);color:var(--text);min-height:100vh}
+.app{max-width:960px;margin:0 auto;padding:16px}
+
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;gap:12px;flex-wrap:wrap}
+.logo-block .logo{font-size:11px;color:var(--gold);letter-spacing:3px;font-weight:500}
+.logo-block .tagline{font-size:10px;color:var(--text3);margin-top:2px}
+.date-pill{display:flex;align-items:center;gap:8px;background:var(--bg2);border:0.5px solid var(--border2);border-radius:30px;padding:6px 14px}
+.date-pill button{background:none;border:none;color:var(--gold);cursor:pointer;font-size:18px;line-height:1;padding:0 2px;opacity:0.8}
+.date-pill button:hover{opacity:1}
+.date-pill .dateTxt{font-size:13px;color:var(--gold);font-weight:500;min-width:120px;text-align:center}
+.save-btn{background:var(--gold);color:#0F0F0F;border:none;border-radius:30px;padding:8px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Vazirmatn',sans-serif;transition:opacity 0.2s}
+.save-btn:hover{opacity:0.85}
+
+.days-strip{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.day-chip{font-size:11px;padding:4px 12px;border-radius:20px;border:0.5px solid var(--border);cursor:pointer;background:var(--bg2);color:var(--text3);transition:all 0.15s}
+.day-chip:hover{border-color:var(--border2);color:var(--text2)}
+.day-chip.active{background:var(--gold);color:#0F0F0F;border-color:var(--gold);font-weight:700}
+
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:12px}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:12px}
+@media(max-width:680px){.grid3,.grid2{grid-template-columns:1fr}}
+
+.card{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius);padding:14px;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;right:0;width:3px;height:100%;background:linear-gradient(180deg,var(--gold) 0%,transparent 100%);opacity:0.5}
+
+.ch{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.ch-icon{width:28px;height:28px;border-radius:8px;background:rgba(201,168,76,0.12);border:0.5px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ch-icon i{color:var(--gold);font-size:15px}
+.ch-title{font-size:13px;font-weight:700;color:var(--gold)}
+
+textarea,input[type=text]{width:100%;background:var(--bg3);border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:8px 10px;font-size:12px;color:var(--text);font-family:'Vazirmatn',sans-serif;resize:none;direction:rtl}
+textarea:focus,input[type=text]:focus{outline:none;border-color:var(--border2)}
+textarea::placeholder,input::placeholder{color:var(--text3)}
+input[type=number]{background:var(--bg3);border:0.5px solid var(--border);border-radius:6px;padding:3px 5px;width:44px;font-size:11px;color:var(--text);text-align:center;font-family:'Vazirmatn',sans-serif}
+input[type=number]:focus{outline:none;border-color:var(--border2)}
+input[type=checkbox]{width:15px;height:15px;accent-color:var(--gold);cursor:pointer;flex-shrink:0}
+
+.mip-banner{background:rgba(201,168,76,0.07);border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:7px 10px;font-size:11px;color:var(--text3);border-right:2px solid var(--gold);margin-bottom:8px;line-height:1.5}
+.mip-confirm{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:11px;color:var(--text3)}
+
+.energy-opt{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--radius-sm);border:0.5px solid var(--border);cursor:pointer;margin-bottom:6px;transition:all 0.15s}
+.energy-opt:hover{border-color:var(--border2)}
+.energy-opt.sel-green{background:var(--green-bg);border-color:var(--green)}
+.energy-opt.sel-yellow{background:var(--yellow-bg);border-color:var(--yellow)}
+.energy-opt.sel-red{background:var(--red-bg);border-color:var(--red)}
+.e-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;border:2px solid}
+.eg .e-dot{border-color:var(--green)}
+.ey .e-dot{border-color:var(--yellow)}
+.er .e-dot{border-color:var(--red)}
+.e-label{font-size:12px;font-weight:500}
+.eg .e-label{color:var(--green)}
+.ey .e-label{color:var(--yellow)}
+.er .e-label{color:var(--red)}
+.e-sub{font-size:10px;color:var(--text3)}
+
+.goal-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.goal-num{font-size:11px;color:var(--gold);font-weight:700;width:16px;text-align:center;flex-shrink:0}
+.compass-note{font-size:10px;color:var(--text3);margin-top:6px;border-right:2px solid var(--gold);padding:5px 8px;background:rgba(201,168,76,0.05);border-radius:4px}
+
+.prio-hdr{display:flex;align-items:center;gap:8px;margin-bottom:6px;margin-top:10px}
+.prio-badge{width:20px;height:20px;border-radius:50%;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.pb3{background:var(--green);color:#fff}
+.pb2{background:var(--yellow);color:#0F0F0F}
+.pb1{background:var(--gold);color:#0F0F0F}
+.prio-lbl{font-size:11px;font-weight:600}
+.lbl3{color:var(--green)}.lbl2{color:var(--yellow)}.lbl1{color:var(--gold)}
+.task-row{display:flex;align-items:center;gap:7px;margin-bottom:5px}
+.task-num{font-size:10px;color:var(--text3);min-width:12px}
+
+.tb-wrap{max-height:340px;overflow-y:auto}
+.tb-wrap::-webkit-scrollbar{width:3px}
+.tb-wrap::-webkit-scrollbar-track{background:transparent}
+.tb-wrap::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+table.tb{width:100%;border-collapse:collapse}
+table.tb th{font-size:10px;color:var(--text3);padding:4px 8px;border-bottom:0.5px solid var(--border);text-align:right}
+table.tb td{border-bottom:0.5px solid rgba(201,168,76,0.06)}
+table.tb td:first-child{font-size:11px;color:var(--gold);padding:3px 8px;font-weight:500;white-space:nowrap;width:50px}
+table.tb td:last-child{padding:1px 4px}
+table.tb input{background:transparent;border:none;width:100%;font-size:12px;color:var(--text);padding:4px 4px;outline:none;font-family:'Vazirmatn',sans-serif;direction:rtl}
+table.tb input::placeholder{color:var(--text3)}
+table.tb tr:hover td{background:rgba(201,168,76,0.03)}
+
+.idea-row{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.idea-bullet{color:var(--gold);font-size:14px;opacity:0.5}
+
+.cl-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.cl-row i{font-size:16px;color:var(--text3);flex-shrink:0}
+.cl-label{font-size:12px;flex:1;color:var(--text2)}
+.cl-sub{font-size:10px;color:var(--text3)}
+.cl-min-lbl{font-size:10px;color:var(--text3)}
+
+.rev-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:12px}
+@media(max-width:500px){.rev-grid{grid-template-columns:1fr}}
+.rev-q{font-size:10px;color:var(--text3);margin-bottom:5px}
+.rev-bottom{display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-top:10px}
+.star-row{display:flex;gap:4px;flex-wrap:wrap}
+.star{font-size:20px;cursor:pointer;color:var(--bg4);transition:color 0.1s}
+.star.lit{color:var(--gold)}
+.star-lbl{font-size:10px;color:var(--text3);margin-bottom:4px}
+
+.save-bar{display:flex;justify-content:flex-end;gap:10px;margin-top:16px;flex-wrap:wrap}
+.btn-sec{background:transparent;border:0.5px solid var(--border2);color:var(--text2);border-radius:30px;padding:7px 18px;font-size:12px;cursor:pointer;font-family:'Vazirmatn',sans-serif;transition:all 0.15s}
+.btn-sec:hover{border-color:var(--gold);color:var(--gold)}
+.btn-pri{background:var(--gold);color:#0F0F0F;border:none;border-radius:30px;padding:7px 20px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Vazirmatn',sans-serif;transition:opacity 0.2s}
+.btn-pri:hover{opacity:0.85}
+
+.toast-box{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:var(--gold);color:#0F0F0F;padding:9px 22px;border-radius:30px;font-size:13px;font-weight:600;z-index:9999;opacity:0;transition:opacity 0.3s;pointer-events:none;font-family:'Vazirmatn',sans-serif}
+
+.progress-ring-wrap{display:flex;justify-content:center;margin-bottom:8px}
+.ring-label{font-size:10px;color:var(--text3);text-align:center;margin-top:4px}
+</style>
+
+<div class="app">
+  <div id="toastBox" class="toast-box"></div>
+
+  <div class="topbar">
+    <div class="logo-block">
+      <div class="logo">A·E·V PLANNER</div>
+      <div class="tagline">یک روز منظم — یک قدم به هدف‌های بزرگ‌تر</div>
+    </div>
+    <div class="date-pill">
+      <button onclick="changeDay(-1)" title="روز قبل">&#8594;</button>
+      <div class="dateTxt" id="dateDisplay"></div>
+      <button onclick="changeDay(1)" title="روز بعد">&#8592;</button>
+    </div>
+    <button class="save-btn" onclick="saveDay()"><i class="ti ti-device-floppy" aria-hidden="true"></i> ذخیره روز</button>
+  </div>
+
+  <div class="days-strip" id="daysNav"></div>
+
+  <div class="grid3">
+    <div class="card">
+      <div class="ch"><div class="ch-icon"><i class="ti ti-target" aria-hidden="true"></i></div><div class="ch-title">MIP — مهم‌ترین پیشرفت</div></div>
+      <div class="mip-banner">مهم‌ترین کاری که اگر امروز انجام شود، بیشترین پیشرفت را ایجاد می‌کند؟</div>
+      <textarea id="mip" rows="3" placeholder="کار اصلی امروز..."></textarea>
+      <div class="mip-confirm">
+        <input type="checkbox" id="mipDone">
+        <label for="mipDone">اگر فقط این کار انجام شود، امروز موفق است.</label>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ch"><div class="ch-icon"><i class="ti ti-bolt" aria-hidden="true"></i></div><div class="ch-title">وضعیت انرژی امروز</div></div>
+      <div class="progress-ring-wrap">
+        <svg width="70" height="70" viewBox="0 0 70 70">
+          <circle cx="35" cy="35" r="28" fill="none" stroke="var(--bg4)" stroke-width="5"/>
+          <circle id="energyRing" cx="35" cy="35" r="28" fill="none" stroke="var(--green)" stroke-width="5" stroke-dasharray="175.93" stroke-dashoffset="175.93" stroke-linecap="round" transform="rotate(-90 35 35)" style="transition:stroke-dashoffset 0.5s,stroke 0.3s"/>
+          <text id="energyRingTxt" x="35" y="40" text-anchor="middle" font-size="11" fill="var(--text3)" font-family="Vazirmatn,sans-serif"></text>
+        </svg>
+      </div>
+      <div class="energy-opt eg" id="eGreen" onclick="selectEnergy('green')">
+        <div class="e-dot"></div>
+        <div><div class="e-label">سبز — انرژی بالا</div><div class="e-sub">کارهای سخت و خلاقانه</div></div>
+      </div>
+      <div class="energy-opt ey" id="eYellow" onclick="selectEnergy('yellow')">
+        <div class="e-dot"></div>
+        <div><div class="e-label">زرد — انرژی متوسط</div><div class="e-sub">کارهای معمولی و اجرایی</div></div>
+      </div>
+      <div class="energy-opt er" id="eRed" onclick="selectEnergy('red')">
+        <div class="e-dot"></div>
+        <div><div class="e-label">قرمز — انرژی کم</div><div class="e-sub">کارهای سبک و کم‌هزینه</div></div>
+      </div>
+      <input type="text" id="energyReason" placeholder="دلیل این وضعیت..." style="margin-top:8px">
+    </div>
+
+    <div class="card">
+      <div class="ch"><div class="ch-icon"><i class="ti ti-compass" aria-hidden="true"></i></div><div class="ch-title">هدف‌های سالانه (قطب‌نما)</div></div>
+      <div id="annualGoals">
+        <div class="goal-row"><span class="goal-num">۱</span><input type="text" placeholder="هدف اول..."></div>
+        <div class="goal-row"><span class="goal-num">۲</span><input type="text" placeholder="هدف دوم..."></div>
+        <div class="goal-row"><span class="goal-num">۳</span><input type="text" placeholder="هدف سوم..."></div>
+      </div>
+      <div class="compass-note">هر کاری که امروز انجام می‌دهم باید من را به یکی از این سه هدف نزدیک کند.</div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="ch"><div class="ch-icon"><i class="ti ti-list-check" aria-hidden="true"></i></div><div class="ch-title">قانون ۳-۲-۱ — کارهای امروز</div></div>
+      <div class="prio-hdr" style="margin-top:0"><span class="prio-badge pb3">۳</span><span class="prio-lbl lbl3">سه کار بزرگ — اولویت بالا</span></div>
+      <div id="tasks3">
+        <div class="task-row"><input type="checkbox" class="taskCheck"><span class="task-num">۱</span><input type="text" placeholder="کار اول..."></div>
+        <div class="task-row"><input type="checkbox" class="taskCheck"><span class="task-num">۲</span><input type="text" placeholder="کار دوم..."></div>
+        <div class="task-row"><input type="checkbox" class="taskCheck"><span class="task-num">۳</span><input type="text" placeholder="کار سوم..."></div>
+      </div>
+      <div class="prio-hdr"><span class="prio-badge pb2">۲</span><span class="prio-lbl lbl2">دو کار متوسط — اهمیت متوسط</span></div>
+      <div id="tasks2">
+        <div class="task-row"><input type="checkbox" class="taskCheck"><span class="task-num">۱</span><input type="text" placeholder="کار اول..."></div>
+        <div class="task-row"><input type="checkbox" class="taskCheck"><span class="task-num">۲</span><input type="text" placeholder="کار دوم..."></div>
+      </div>
+      <div class="prio-hdr"><span class="prio-badge pb1">۱</span><span class="prio-lbl lbl1">یک کار شخصی — برای خودم</span></div>
+      <div id="tasks1">
+        <div class="task-row"><input type="checkbox" class="taskCheck"><span class="task-num">۱</span><input type="text" placeholder="کار شخصی..."></div>
+      </div>
+      <div style="margin-top:10px" id="progressArea">
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-bottom:4px"><span>پیشرفت امروز</span><span id="progTxt">۰ از ۶</span></div>
+        <div style="height:4px;background:var(--bg4);border-radius:2px"><div id="progBar" style="height:4px;background:var(--gold);border-radius:2px;width:0%;transition:width 0.3s"></div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ch"><div class="ch-icon"><i class="ti ti-clock" aria-hidden="true"></i></div><div class="ch-title">برنامه زمانی — Time Blocking</div></div>
+      <div class="tb-wrap">
+        <table class="tb">
+          <thead><tr><th>ساعت</th><th>کار / فعالیت</th></tr></thead>
+          <tbody id="tbBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="ch"><div class="ch-icon"><i class="ti ti-bulb" aria-hidden="true"></i></div><div class="ch-title">ایده‌های پارک شده</div></div>
+      <div style="font-size:10px;color:var(--text3);margin-bottom:8px">ایده‌های امروز را بنویس و ۲۴ ساعت به تعویق بینداز.</div>
+      <div id="ideas">
+        <div class="idea-row"><span class="idea-bullet">◆</span><input type="text" placeholder="ایده اول..."></div>
+        <div class="idea-row"><span class="idea-bullet">◆</span><input type="text" placeholder="ایده دوم..."></div>
+        <div class="idea-row"><span class="idea-bullet">◆</span><input type="text" placeholder="ایده سوم..."></div>
+        <div class="idea-row"><span class="idea-bullet">◆</span><input type="text" placeholder="ایده چهارم..."></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ch"><div class="ch-icon"><i class="ti ti-checkbox" aria-hidden="true"></i></div><div class="ch-title">چک‌لیست روزانه</div></div>
+      <div id="checklist">
+        <div class="cl-row"><input type="checkbox" class="taskCheck"><i class="ti ti-book" aria-hidden="true"></i><span class="cl-label">مطالعه / یادگیری</span><input type="number" class="clMin" min="0" max="999" placeholder="0"><span class="cl-min-lbl">دقیقه</span></div>
+        <div class="cl-row"><input type="checkbox" class="taskCheck"><i class="ti ti-barbell" aria-hidden="true"></i><span class="cl-label">ورزش / تحرک</span><input type="number" class="clMin" min="0" max="999" placeholder="0"><span class="cl-min-lbl">دقیقه</span></div>
+        <div class="cl-row"><input type="checkbox" class="taskCheck"><i class="ti ti-circle-dot" aria-hidden="true"></i><span class="cl-label">نماز و ذکر و دعا</span><span class="cl-sub">نمازها و ذکر</span></div>
+        <div class="cl-row"><input type="checkbox" class="taskCheck"><i class="ti ti-music" aria-hidden="true"></i><span class="cl-label">موسیقی</span><input type="number" class="clMin" min="0" max="999" placeholder="0"><span class="cl-min-lbl">دقیقه</span></div>
+        <div class="cl-row"><input type="checkbox" class="taskCheck"><i class="ti ti-player-play" aria-hidden="true"></i><span class="cl-label">یوتیوب / آموزشی</span><input type="number" class="clMin" min="0" max="999" placeholder="0"><span class="cl-min-lbl">دقیقه</span></div>
+        <div class="cl-row"><input type="checkbox" class="taskCheck"><i class="ti ti-device-laptop" aria-hidden="true"></i><span class="cl-label">کار روی پروژه‌ها</span><input type="number" class="clMin" min="0" max="999" placeholder="0"><span class="cl-min-lbl">دقیقه</span></div>
+        <div class="cl-row"><input type="checkbox" class="taskCheck"><i class="ti ti-coins" aria-hidden="true"></i><span class="cl-label">کار روی درآمد</span><input type="number" class="clMin" min="0" max="999" placeholder="0"><span class="cl-min-lbl">دقیقه</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:12px">
+    <div class="ch"><div class="ch-icon"><i class="ti ti-chart-bar" aria-hidden="true"></i></div><div class="ch-title">بررسی پایان روز</div></div>
+    <div class="rev-grid">
+      <div><div class="rev-q">امروز به کدام هدف سالانه نزدیک شدم؟</div><textarea id="rev1" rows="2" placeholder="..."></textarea></div>
+      <div><div class="rev-q">مهم‌ترین چیزی که امروز یاد گرفتم:</div><textarea id="rev2" rows="2" placeholder="..."></textarea></div>
+      <div><div class="rev-q">چه چیزی خوب پیش رفت؟</div><textarea id="rev3" rows="2" placeholder="..."></textarea></div>
+      <div><div class="rev-q">چه چیزی را می‌توانم بهتر کنم؟</div><textarea id="rev4" rows="2" placeholder="..."></textarea></div>
+    </div>
+    <div class="rev-bottom">
+      <div style="flex:1;min-width:200px"><div class="rev-q">MIP فردا:</div><input type="text" id="mipTomorrow" placeholder="مهم‌ترین کار فردا..."></div>
+      <div>
+        <div class="star-lbl">امتیاز امروز (از ۱۰)</div>
+        <div class="star-row" id="stars">
+          <span class="star" onclick="setStar(1)">★</span>
+          <span class="star" onclick="setStar(2)">★</span>
+          <span class="star" onclick="setStar(3)">★</span>
+          <span class="star" onclick="setStar(4)">★</span>
+          <span class="star" onclick="setStar(5)">★</span>
+          <span class="star" onclick="setStar(6)">★</span>
+          <span class="star" onclick="setStar(7)">★</span>
+          <span class="star" onclick="setStar(8)">★</span>
+          <span class="star" onclick="setStar(9)">★</span>
+          <span class="star" onclick="setStar(10)">★</span>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:12px;text-align:center;font-size:12px;color:var(--gold);font-weight:600;border-top:0.5px solid var(--border);padding-top:10px">
+      تمرکز کن &nbsp;·&nbsp; برنامه‌ریزی کن &nbsp;·&nbsp; عمل کن &nbsp;·&nbsp; نتیجه بگیر
+    </div>
+  </div>
+
+  <div class="save-bar">
+    <button class="btn-sec" onclick="clearDay()"><i class="ti ti-refresh" aria-hidden="true"></i> پاک کردن</button>
+    <button class="btn-pri" onclick="saveDay()"><i class="ti ti-device-floppy" aria-hidden="true"></i> ذخیره روز</button>
+    <div class="save-bar">
+    <button class="btn-sec" onclick="clearDay()">پاک کردن</button>
+
+    <button class="btn-sec" onclick="exportJSON()">
+        دانلود JSON
+    </button>
+
+    <button class="btn-sec" onclick="importJSON()">
+        بارگذاری JSON
+    </button>
+
+    <button class="btn-sec" onclick="exportPNG()">
+        دانلود PNG
+    </button>
+
+    <button class="btn-sec" onclick="exportPDF()">
+        دانلود PDF
+    </button>
+
+    <input type="file" id="jsonFile" accept=".json" style="display:none">
+
+    <button class="btn-pri" onclick="saveDay()">
+        ذخیره روز
+    </button>
+</div>
+  </div>
+</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;600;800&display=swap" rel="stylesheet">
-
-<style>
-
-body{
-    margin:0;
-    background:#0f172a;
-    font-family:Vazirmatn;
-    color:#fff;
-}
-
-#planner{
-    width:1100px;
-    margin:20px auto;
-    background:#0b1220;
-    padding:20px;
-    border-radius:18px;
-}
-
-.header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:15px;
-}
-
-.title{
-    font-size:20px;
-    font-weight:800;
-    color:#38bdf8;
-}
-
-.layout{
-    display:flex;
-    gap:15px;
-}
-
-.col{
-    flex:1;
-    display:flex;
-    flex-direction:column;
-    gap:12px;
-}
-
-.card{
-    background:#111827;
-    border:1px solid #1f2937;
-    border-radius:14px;
-    padding:12px;
-}
-
-.section-title{
-    font-size:13px;
-    font-weight:700;
-    color:#fbbf24;
-}
-
-input,textarea,select{
-    width:100%;
-    background:#0b1220;
-    border:1px solid #334155;
-    color:white;
-    padding:8px;
-    border-radius:10px;
-    margin-top:6px;
-    box-sizing:border-box;
-    font-family:Vazirmatn;
-    font-size:12px;
-}
-
-textarea{resize:none}
-
-#notes{
-    height:260px;
-}
-
-.schedule{
-    display:flex;
-    flex-direction:column;
-    gap:6px;
-    max-height:420px;
-    overflow:auto;
-}
-
-.time-row{
-    display:flex;
-    gap:8px;
-}
-
-.time{
-    width:70px;
-    color:#38bdf8;
-}
-
-.center{
-    text-align:center;
-    margin-top:15px;
-}
-
-button{
-    background:linear-gradient(135deg,#38bdf8,#6366f1);
-    border:none;
-    padding:10px 16px;
-    margin:5px;
-    border-radius:10px;
-    color:white;
-    cursor:pointer;
-    font-weight:600;
-}
-
-button:hover{transform:scale(1.05)}
-
-</style>
-</head>
-
-<body>
-
-<div id="planner">
-
-<div class="header">
-    <div class="title">A.E.V PLANNER — AFTER EDIT VISION</div>
-    <input id="date" placeholder="140 / /" style="width:140px">
-</div>
-
-<div class="layout">
-
-    <!-- RIGHT -->
-    <div class="col">
-
-        <div class="card">
-            <div class="section-title">🧭 اهداف سالانه</div>
-            <textarea id="g1"></textarea>
-            <textarea id="g2"></textarea>
-            <textarea id="g3"></textarea>
-        </div>
-
-        <div class="card">
-            <div class="section-title">⚡ وضعیت انرژی</div>
-            <select id="energy">
-                <option>🟢 بالا</option>
-                <option>🟡 متوسط</option>
-                <option>🔴 کم</option>
-            </select>
-            <textarea id="energy_reason"></textarea>
-        </div>
-
-        <div class="card">
-            <div class="section-title">🔥 MIP امروز</div>
-            <textarea id="mip"></textarea>
-        </div>
-
-        <div class="card">
-            <div class="section-title">💡  ایده های امروز</div>
-            <textarea id="ideas"></textarea>
-        </div>
-
-        <div class="card">
-            <div class="section-title">📝 یادداشت‌ها</div>
-            <textarea id="notes"></textarea>
-        </div>
-
-    </div>
-
-    <!-- LEFT -->
-    <div class="col">
-
-        <div class="card">
-            <div class="section-title">📊 قانون 3-2-1</div>
-
-            <div>3 کار بزرگ</div>
-            <input id="b1">
-            <input id="b2">
-            <input id="b3">
-
-            <div style="margin-top:8px">2 کار متوسط</div>
-            <input id="m1">
-            <input id="m2">
-
-            <div style="margin-top:8px">1 کار شخصی</div>
-            <input id="p1">
-        </div>
-
-        <div class="card">
-            <div class="section-title">⏰ برنامه زمانی</div>
-            <div class="schedule" id="schedule"></div>
-        </div>
-
-        <div class="card">
-            <div class="section-title">🏁 موفقیت های  روز</div>
-            <textarea id="end1"></textarea>
-            <textarea id="end2"></textarea>
-            <textarea id="end3"></textarea>
-            <input id="score">
-            <textarea id="tomorrow"></textarea>
-        </div>
-
-    </div>
-
-</div>
-
-<div class="center">
-    <button onclick="savePNG()">PNG</button>
-    <button onclick="savePDF()">PDF</button>
-
-    <button onclick="exportData()">💾 ذخیره لوکال</button>
-    <button onclick="importClick()">📂 JSON بارگذاری</button>
-
-    <input type="file" id="fileInput" style="display:none" onchange="importData(event)">
-</div>
-
-</div>
-
 <script>
+const TB_HOURS=['04:00','05:00','06:00','07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00','22:00','23:00'];
+let currentDate=new Date();
+let currentEnergy='';
+let currentStar=0;
+let savedDays={};
 
-// schedule
-const schedule=document.getElementById("schedule");
-for(let h=4;h<=23;h++){
-    const row=document.createElement("div");
-    row.className="time-row";
-    row.innerHTML=`
-        <input class="time" value="${h}:00">
-        <input id="t_${h}" placeholder="کار...">
-    `;
-    schedule.appendChild(row);
+function fmtDate(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+
+function faDate(d){
+  const dNames=['یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنجشنبه','جمعه','شنبه'];
+  const mNames=['ژانویه','فبروری','مارس','آوریل','مه','ژوئن','ژوئیه','اوت','سپتامبر','اکتبر','نوامبر','دسامبر'];
+  return dNames[d.getDay()]+' — '+d.getDate()+' '+mNames[d.getMonth()]+' '+d.getFullYear();
 }
 
-// ===== SAVE / LOAD CORE =====
-
-function getAllData(){
-    const data = {};
-    document.querySelectorAll("input,textarea,select").forEach(el=>{
-        if(el.id){
-            data[el.id] = el.value;
-        }
-    });
-    return data;
+function buildTB(){
+  const tb=document.getElementById('tbBody');
+  tb.innerHTML='';
+  TB_HOURS.forEach(h=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${h}</td><td><input type="text" data-h="${h}" placeholder="—"></td>`;
+    tb.appendChild(tr);
+  });
 }
 
-function setAllData(data){
-    document.querySelectorAll("input,textarea,select").forEach(el=>{
-        if(el.id && data[el.id] !== undefined){
-            el.value = data[el.id];
-        }
-    });
+function selectEnergy(e){
+  currentEnergy=e;
+  ['green','yellow','red'].forEach(x=>{
+    const el=document.getElementById('e'+x.charAt(0).toUpperCase()+x.slice(1));
+    el.className='energy-opt e'+x.charAt(0);
+  });
+  const map={green:'sel-green',yellow:'sel-yellow',red:'sel-red'};
+  const ids={green:'eGreen',yellow:'eYellow',red:'eRed'};
+  document.getElementById(ids[e]).classList.add(map[e]);
+  updateRing(e);
 }
 
-// autosave (real)
-document.addEventListener("input",()=>{
-    localStorage.setItem("AEV_PLANNER", JSON.stringify(getAllData()));
-});
+function updateRing(e){
+  const ring=document.getElementById('energyRing');
+  const txt=document.getElementById('energyRingTxt');
+  const circ=175.93;
+  if(!e){ring.style.strokeDashoffset=circ;txt.textContent='';return;}
+  const map={green:{pct:1,color:'#2DBD8C',label:'بالا'},yellow:{pct:0.6,color:'#E8A020',label:'متوسط'},red:{pct:0.3,color:'#E05252',label:'کم'}};
+  const m=map[e];
+  ring.style.stroke=m.color;
+  ring.style.strokeDashoffset=circ-(circ*m.pct);
+  txt.setAttribute('fill',m.color);
+  txt.textContent=m.label;
+}
 
-// load saved
-window.onload=()=>{
-    const saved = localStorage.getItem("AEV_PLANNER");
-    if(saved){
-        setAllData(JSON.parse(saved));
-    }
-};
+function setStar(n){
+  currentStar=n;
+  document.querySelectorAll('.star').forEach((s,i)=>s.classList.toggle('lit',i<n));
+}
 
-// export file
-function exportData(){
+function updateProgress(){
+  const all=document.querySelectorAll('#tasks3 .taskCheck, #tasks2 .taskCheck, #tasks1 .taskCheck');
+  const done=Array.from(all).filter(c=>c.checked).length;
+  const pct=all.length>0?Math.round((done/all.length)*100):0;
+  document.getElementById('progBar').style.width=pct+'%';
+  document.getElementById('progTxt').textContent=done+' از '+all.length;
+}
+
+document.addEventListener('change',e=>{if(e.target.classList.contains('taskCheck'))updateProgress();});
+
+function gatherData(){
+  const goals=[];
+  document.querySelectorAll('#annualGoals input').forEach(i=>goals.push(i.value));
+  const t3=[],t3c=[];
+  document.querySelectorAll('#tasks3 .task-row').forEach(r=>{t3.push(r.querySelector('input[type=text]').value);t3c.push(r.querySelector('input[type=checkbox]').checked);});
+  const t2=[],t2c=[];
+  document.querySelectorAll('#tasks2 .task-row').forEach(r=>{t2.push(r.querySelector('input[type=text]').value);t2c.push(r.querySelector('input[type=checkbox]').checked);});
+  const t1=[],t1c=[];
+  document.querySelectorAll('#tasks1 .task-row').forEach(r=>{t1.push(r.querySelector('input[type=text]').value);t1c.push(r.querySelector('input[type=checkbox]').checked);});
+  const tb={};
+  document.querySelectorAll('#tbBody input').forEach(i=>tb[i.dataset.h]=i.value);
+  const ideas=[];
+  document.querySelectorAll('#ideas input').forEach(i=>ideas.push(i.value));
+  const cl=[];
+  document.querySelectorAll('#checklist .cl-row').forEach(r=>{cl.push({done:r.querySelector('input[type=checkbox]').checked,min:(r.querySelector('.clMin')||{value:''}).value});});
+  return{mip:document.getElementById('mip').value,mipDone:document.getElementById('mipDone').checked,energy:currentEnergy,energyReason:document.getElementById('energyReason').value,goals,t3,t3c,t2,t2c,t1,t1c,tb,ideas,cl,rev1:document.getElementById('rev1').value,rev2:document.getElementById('rev2').value,rev3:document.getElementById('rev3').value,rev4:document.getElementById('rev4').value,mipTomorrow:document.getElementById('mipTomorrow').value,star:currentStar};
+}
+
+function applyData(d){
+  if(!d)return;
+  document.getElementById('mip').value=d.mip||'';
+  document.getElementById('mipDone').checked=!!d.mipDone;
+  if(d.energy)selectEnergy(d.energy); else updateRing('');
+  document.getElementById('energyReason').value=d.energyReason||'';
+  document.querySelectorAll('#annualGoals input').forEach((inp,i)=>inp.value=(d.goals||[])[i]||'');
+  document.querySelectorAll('#tasks3 .task-row').forEach((r,i)=>{r.querySelector('input[type=text]').value=(d.t3||[])[i]||'';r.querySelector('input[type=checkbox]').checked=!!(d.t3c||[])[i];});
+  document.querySelectorAll('#tasks2 .task-row').forEach((r,i)=>{r.querySelector('input[type=text]').value=(d.t2||[])[i]||'';r.querySelector('input[type=checkbox]').checked=!!(d.t2c||[])[i];});
+  document.querySelectorAll('#tasks1 .task-row').forEach((r,i)=>{r.querySelector('input[type=text]').value=(d.t1||[])[i]||'';r.querySelector('input[type=checkbox]').checked=!!(d.t1c||[])[i];});
+  document.querySelectorAll('#tbBody input').forEach(i=>i.value=(d.tb||{})[i.dataset.h]||'');
+  document.querySelectorAll('#ideas input').forEach((i,idx)=>i.value=(d.ideas||[])[idx]||'');
+  document.querySelectorAll('#checklist .cl-row').forEach((r,i)=>{const cl=(d.cl||[])[i]||{};r.querySelector('input[type=checkbox]').checked=!!cl.done;const mn=r.querySelector('.clMin');if(mn)mn.value=cl.min||'';});
+  document.getElementById('rev1').value=d.rev1||'';
+  document.getElementById('rev2').value=d.rev2||'';
+  document.getElementById('rev3').value=d.rev3||'';
+  document.getElementById('rev4').value=d.rev4||'';
+  document.getElementById('mipTomorrow').value=d.mipTomorrow||'';
+  setStar(d.star||0);
+  updateProgress();
+}
+
+function saveDay(){
+  const key=fmtDate(currentDate);
+  savedDays[key]=gatherData();
+  try{localStorage.setItem('aevPlannerPro',JSON.stringify(savedDays));}catch(e){}
+  renderDaysNav();
+  showToast('روز '+key+' ذخیره شد ✓');
+}
+
+function clearDay(){
+  document.querySelectorAll('input[type=text],textarea').forEach(i=>i.value='');
+  document.querySelectorAll('input[type=checkbox]').forEach(c=>c.checked=false);
+  document.querySelectorAll('input[type=number]').forEach(n=>n.value='');
+  currentEnergy='';
+  ['eGreen','eYellow','eRed'].forEach(id=>{
+    const el=document.getElementById(id);
+    const cls={'eGreen':'eg','eYellow':'ey','eRed':'er'};
+    if(el)el.className='energy-opt '+cls[id];
+  });
+  updateRing('');
+  setStar(0);
+  updateProgress();
+}
+
+function changeDay(delta){
+  const nd=new Date(currentDate);
+  nd.setDate(nd.getDate()+delta);
+  currentDate=nd;
+  document.getElementById('dateDisplay').textContent=faDate(currentDate);
+  clearDay();
+  applyData(savedDays[fmtDate(currentDate)]);
+  renderDaysNav();
+}
+
+function goToDay(key){
+  const p=key.split('-');
+  currentDate=new Date(+p[0],+p[1]-1,+p[2]);
+  document.getElementById('dateDisplay').textContent=faDate(currentDate);
+  clearDay();
+  applyData(savedDays[key]);
+  renderDaysNav();
+}
+
+function renderDaysNav(){
+  const nav=document.getElementById('daysNav');
+  const keys=Object.keys(savedDays).sort().reverse().slice(0,12);
+  if(!keys.length){nav.innerHTML='';return;}
+  const cur=fmtDate(currentDate);
+  nav.innerHTML=keys.map(k=>`<div class="day-chip${k===cur?' active':''}" onclick="goToDay('${k}')">${k}</div>`).join('');
+}
+
+function showToast(msg){
+  const t=document.getElementById('toastBox');
+  t.textContent=msg;t.style.opacity='1';
+  setTimeout(()=>t.style.opacity='0',2500);
+}
+
+buildTB();
+document.getElementById('dateDisplay').textContent=faDate(currentDate);
+try{
+  const saved=localStorage.getItem('aevPlannerPro');
+  if(saved)savedDays=JSON.parse(saved);
+  const key=fmtDate(currentDate);
+  if(savedDays[key])applyData(savedDays[key]);
+  else updateRing('');
+}catch(e){updateRing('');}
+renderDaysNav();
+// دانلود JSON
+function exportJSON(){
+
+    saveDay();
+
+    const dataStr = JSON.stringify(savedDays,null,2);
+
     const blob = new Blob(
-        [JSON.stringify(getAllData())],
-        {type:"application/json"}
+        [dataStr],
+        {type:'application/json'}
     );
 
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "AEV-Planner-Backup.json";
+    const a = document.createElement('a');
+
+    a.href = URL.createObjectURL(blob);
+
+    a.download =
+        'AEV-Planner-' +
+        fmtDate(currentDate) +
+        '.json';
+
     a.click();
+
+    URL.revokeObjectURL(a.href);
 }
 
-// import file
-function importClick(){
-    document.getElementById("fileInput").click();
+
+// بارگذاری JSON
+function importJSON(){
+
+    document
+      .getElementById('jsonFile')
+      .click();
 }
 
-function importData(event){
-    const file = event.target.files[0];
-    const reader = new FileReader();
 
-    reader.onload = function(e){
-        const data = JSON.parse(e.target.result);
-        setAllData(data);
+document
+.getElementById('jsonFile')
+.addEventListener('change',function(e){
+
+    const file=e.target.files[0];
+
+    if(!file) return;
+
+    const reader=new FileReader();
+
+    reader.onload=function(){
+
+        try{
+
+            savedDays=
+            JSON.parse(reader.result);
+
+            localStorage.setItem(
+                'aevPlannerPro',
+                JSON.stringify(savedDays)
+            );
+
+            renderDaysNav();
+
+            const key=fmtDate(currentDate);
+
+            if(savedDays[key]){
+                applyData(savedDays[key]);
+            }
+
+            showToast('فایل JSON بارگذاری شد ✓');
+
+        }catch(err){
+
+            alert('فایل معتبر نیست');
+        }
     };
 
     reader.readAsText(file);
-}
+});
 
-// PNG
-async function savePNG(){
-    const canvas=await html2canvas(document.getElementById("planner"),{
+
+// دانلود PNG
+async function exportPNG(){
+
+    saveDay();
+
+    const app=document.querySelector('.app');
+
+    const canvas=
+    await html2canvas(app,{
         scale:2,
-        useCORS:true,
-        scrollY:0
+        useCORS:true
     });
 
-    const a=document.createElement("a");
-    a.download="AEV.png";
-    a.href=canvas.toDataURL("image/png");
-    a.click();
+    const link=
+    document.createElement('a');
+
+    link.href=
+    canvas.toDataURL('image/png');
+
+    link.download=
+    'AEV-Planner-' +
+    fmtDate(currentDate) +
+    '.png';
+
+    link.click();
+
+    showToast('PNG ذخیره شد ✓');
 }
 
-// PDF
-async function savePDF(){
-    const canvas=await html2canvas(document.getElementById("planner"),{
+
+// دانلود PDF
+async function exportPDF(){
+
+    saveDay();
+
+    const app=document.querySelector('.app');
+
+    const canvas=
+    await html2canvas(app,{
         scale:2,
-        useCORS:true,
-        scrollY:0
+        useCORS:true
     });
 
-    const img=canvas.toDataURL("image/png");
-    const { jsPDF }=window.jspdf;
+    const img=
+    canvas.toDataURL('image/png');
 
-    const pdf=new jsPDF("p","mm","a4");
+    const { jsPDF } =
+    window.jspdf;
 
-    const imgWidth=210;
-    const imgHeight=(canvas.height * imgWidth) / canvas.width;
+    const pdf=
+    new jsPDF(
+        'p',
+        'mm',
+        'a4'
+    );
 
-    pdf.addImage(img,"PNG",0,0,imgWidth,imgHeight);
-    pdf.save("AEV.pdf");
+    const width=210;
+
+    const height=
+    canvas.height *
+    width /
+    canvas.width;
+
+    pdf.addImage(
+        img,
+        'PNG',
+        0,
+        0,
+        width,
+        height
+    );
+
+    pdf.save(
+        'AEV-Planner-' +
+        fmtDate(currentDate) +
+        '.pdf'
+    );
+
+    showToast('PDF ذخیره شد ✓');
 }
-
 </script>
-
-</body>
-</html>
