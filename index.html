@@ -12,7 +12,15 @@
   --red:#E05252;--red-bg:rgba(224,82,82,0.1);
   --radius:12px;--radius-sm:8px;
 }
-body{font-family:'Vazirmatn',sans-serif;direction:rtl;background:var(--bg);color:var(--text);min-height:100vh}
+body{font-family:'Vazirmatn',sans-serif;direction:rtl;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+img,canvas,svg{max-width:100%}
+@media(max-width:768px){
+.app{padding:10px}
+.topbar{flex-direction:column;align-items:stretch}
+.date-pill,.save-btn{width:100%;justify-content:center}
+.card{padding:10px}
+.tb-wrap{max-height:none;overflow:visible}
+}
 .app{max-width:960px;margin:0 auto;padding:16px}
 
 .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;gap:12px;flex-wrap:wrap}
@@ -280,35 +288,17 @@ table.tb tr:hover td{background:rgba(201,168,76,0.03)}
     </div>
   </div>
 
-  <div class="save-bar">
-    <button class="btn-sec" onclick="clearDay()"><i class="ti ti-refresh" aria-hidden="true"></i> پاک کردن</button>
-    <button class="btn-pri" onclick="saveDay()"><i class="ti ti-device-floppy" aria-hidden="true"></i> ذخیره روز</button>
-    <div class="save-bar">
-    <button class="btn-sec" onclick="clearDay()">پاک کردن</button>
-
-    <button class="btn-sec" onclick="exportJSON()">
-        دانلود JSON
-    </button>
-
-    <button class="btn-sec" onclick="importJSON()">
-        بارگذاری JSON
-    </button>
-
-    <button class="btn-sec" onclick="exportPNG()">
-        دانلود PNG
-    </button>
-
-    <button class="btn-sec" onclick="exportPDF()">
-        دانلود PDF
-    </button>
-
-    <input type="file" id="jsonFile" accept=".json" style="display:none">
-
-    <button class="btn-pri" onclick="saveDay()">
-        ذخیره روز
-    </button>
+  
+<div class="save-bar">
+<button class="btn-sec" onclick="clearDay()">پاک کردن</button>
+<button class="btn-sec" onclick="exportJSON()">دانلود JSON</button>
+<button class="btn-sec" onclick="importJSON()">بارگذاری JSON</button>
+<button class="btn-sec" onclick="exportPNG()">دانلود PNG</button>
+<button class="btn-sec" onclick="exportPDF()">دانلود PDF</button>
+<button class="btn-pri" onclick="saveDay()">ذخیره روز</button>
+<input type="file" id="jsonFile" accept=".json" style="display:none">
 </div>
-  </div>
+
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -565,83 +555,63 @@ document
 
 
 // دانلود PNG
+
 async function exportPNG(){
-
-    saveDay();
-
-    const app=document.querySelector('.app');
-
-    const canvas=
-    await html2canvas(app,{
-        scale:2,
-        useCORS:true
-    });
-
-    const link=
-    document.createElement('a');
-
-    link.href=
-    canvas.toDataURL('image/png');
-
-    link.download=
-    'AEV-Planner-' +
-    fmtDate(currentDate) +
-    '.png';
-
-    link.click();
-
-    showToast('PNG ذخیره شد ✓');
+saveDay();
+window.scrollTo(0,0);
+const canvas=await html2canvas(document.body,{
+scale:2,
+useCORS:true,
+windowWidth:document.documentElement.scrollWidth,
+windowHeight:document.documentElement.scrollHeight,
+scrollX:0,
+scrollY:0
+});
+const link=document.createElement('a');
+link.href=canvas.toDataURL('image/png');
+link.download='AEV-Planner-'+fmtDate(currentDate)+'.png';
+link.click();
+showToast('PNG ذخیره شد ✓');
 }
+
 
 
 // دانلود PDF
+
 async function exportPDF(){
+saveDay();
+window.scrollTo(0,0);
+const canvas=await html2canvas(document.body,{
+scale:2,
+useCORS:true,
+windowWidth:document.documentElement.scrollWidth,
+windowHeight:document.documentElement.scrollHeight,
+scrollX:0,
+scrollY:0
+});
+const img=canvas.toDataURL('image/png');
+const {jsPDF}=window.jspdf;
+const pdf=new jsPDF('p','mm','a4');
 
-    saveDay();
+const pageWidth=210;
+const pageHeight=297;
+const imgHeight=(canvas.height*pageWidth)/canvas.width;
 
-    const app=document.querySelector('.app');
+let heightLeft=imgHeight;
+let position=0;
 
-    const canvas=
-    await html2canvas(app,{
-        scale:2,
-        useCORS:true
-    });
+pdf.addImage(img,'PNG',0,position,pageWidth,imgHeight);
+heightLeft-=pageHeight;
 
-    const img=
-    canvas.toDataURL('image/png');
-
-    const { jsPDF } =
-    window.jspdf;
-
-    const pdf=
-    new jsPDF(
-        'p',
-        'mm',
-        'a4'
-    );
-
-    const width=210;
-
-    const height=
-    canvas.height *
-    width /
-    canvas.width;
-
-    pdf.addImage(
-        img,
-        'PNG',
-        0,
-        0,
-        width,
-        height
-    );
-
-    pdf.save(
-        'AEV-Planner-' +
-        fmtDate(currentDate) +
-        '.pdf'
-    );
-
-    showToast('PDF ذخیره شد ✓');
+while(heightLeft>0){
+position=heightLeft-imgHeight;
+pdf.addPage();
+pdf.addImage(img,'PNG',0,position,pageWidth,imgHeight);
+heightLeft-=pageHeight;
 }
+
+pdf.save('AEV-Planner-'+fmtDate(currentDate)+'.pdf');
+showToast('PDF ذخیره شد ✓');
+}
+
 </script>
