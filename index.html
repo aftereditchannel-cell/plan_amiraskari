@@ -66,7 +66,6 @@ img,canvas,svg{max-width:100%}
 }
 .save-btn:hover{transform:translateY(-1px);box-shadow:0 10px 26px rgba(201,168,76,0.45), inset 0 1px 0 rgba(255,255,255,0.5)}
 
-/* استایل دکمه مود ویرایش */
 .edit-toggle-btn {
   background: var(--glass-bg-soft);
   border: 1px solid var(--glass-border);
@@ -175,7 +174,6 @@ input[type=checkbox]{width:15px;height:15px;accent-color:var(--gold);cursor:poin
 .er .e-label{color:var(--red)}
 .e-sub{font-size:10px;color:var(--text3)}
 
-/* کنترل‌های مدیریتی داینامیک */
 .edit-ctrls {
   display: none;
   align-items: center;
@@ -225,7 +223,7 @@ input[type=checkbox]{width:15px;height:15px;accent-color:var(--gold);cursor:poin
   background:rgba(201,168,76,0.06);border-radius:8px;backdrop-filter:blur(6px);
 }
 
-.prio-hdr{display:flex;align-items:center;justify-content:between;margin-bottom:6px;margin-top:10px}
+.prio-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;margin-top:10px}
 .prio-hdr-right {display:flex;align-items:center;gap:8px}
 .prio-badge{
   width:20px;height:20px;border-radius:50%;font-size:11px;font-weight:700;display:flex;align-items:center;
@@ -271,7 +269,7 @@ table.tb tr:hover td{background:rgba(201,168,76,0.05)}
 .rev-q{font-size:10px;color:var(--text3);margin-bottom:5px}
 .rev-bottom{display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-top:10px}
 .star-row{display:flex;gap:4px;flex-wrap:wrap}
-.star animate{font-size:20px;cursor:pointer;color:rgba(255,255,255,0.12);transition:color 0.15s, transform 0.15s}
+.star{font-size:20px;cursor:pointer;color:rgba(255,255,255,0.12);transition:color 0.15s, transform 0.15s}
 .star:hover{transform:scale(1.15)}
 .star.lit{color:var(--gold-light);text-shadow:0 0 8px rgba(201,168,76,0.5)}
 .star-lbl{font-size:10px;color:var(--text3);margin-bottom:4px}
@@ -303,7 +301,6 @@ table.tb tr:hover td{background:rgba(201,168,76,0.05)}
 .progress-ring-wrap{display:flex;justify-content:center;margin-bottom:8px}
 .ring-label{font-size:10px;color:var(--text3);text-align:center;margin-top:4px}
 
-/* استایل دیالوگ تأیید اختصاصی */
 .confirm-modal {
   position: fixed; top: 0; left: 0; right: 0; bottom: 0;
   background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
@@ -324,7 +321,6 @@ table.tb tr:hover td{background:rgba(201,168,76,0.05)}
 
 .tb-wrap.export-expanded{max-height:none !important;overflow:visible !important}
 
-/* کلاس مخصوص حالت آرشیو کاملاً قفل، غیرفعال و صِرفاً نمایشی */
 .html-preview-mode, .html-preview-mode body {
   cursor: default !important;
 }
@@ -347,7 +343,6 @@ table.tb tr:hover td{background:rgba(201,168,76,0.05)}
   opacity: 0.9 !important;
   background: rgba(255,255,255,0.02) !important;
 }
-/* قفل کامل تعامل با ستاره‌های امتیازدهی و وضعیت‌های انرژی در نسخه آرشیو */
 .html-preview-mode .star, 
 .html-preview-mode .energy-opt {
   pointer-events: none !important;
@@ -363,7 +358,7 @@ table.tb tr:hover td{background:rgba(201,168,76,0.05)}
   <div id="confirmModal" class="confirm-modal">
     <div class="confirm-box">
       <div class="confirm-title">تایید نهایی ذخیره‌سازی</div>
-      <div class="confirm-desc">آیا از ذخیره تغییرات امروز و ارسال به گوگل شیت اطمینان دارید؟</div>
+      <div class="confirm-desc">آیا از ذخیره تغییرات امروز و ارسال دیتای JSON به وب‌هوک N8N اطمینان دارید؟</div>
       <div class="confirm-actions">
         <button class="btn-pri" onclick="handleConfirmSave(true)">بله، مطمئنم</button>
         <button class="btn-sec" onclick="handleConfirmSave(false)">خیر</button>
@@ -458,45 +453,41 @@ table.tb tr:hover td{background:rgba(201,168,76,0.05)}
           <div class="ch-title">قانون ۳-۲-۱ — کارهای امروز</div>
         </div>
       </div>
-      
       <div class="prio-hdr" style="margin-top:0">
-        <div class="prio-hdr-right"><span class="prio-badge pb3">۳</span><span class="prio-lbl lbl3">سه کار بزرگ — اولویت بالا</span></div>
+        <div class="prio-hdr-right"><span class="prio-badge pb3">۳</span><span class="prio-lbl lbl3">کارهای اولویت بالا (توسعه و رشد)</span></div>
       </div>
       <div id="tasks3"></div>
       <button class="add-section-btn" onclick="addItem('tasks3')"><i class="ti ti-plus"></i> افزودن کار اولویت بالا</button>
 
       <div class="prio-hdr">
-        <div class="prio-hdr-right"><span class="prio-badge pb2">۲</span><span class="prio-lbl lbl2">دو کار متوسط — اهمیت متوسط</span></div>
+        <div class="prio-hdr-right"><span class="prio-badge pb2">۲</span><span class="prio-lbl lbl2">کارهای اهمیت متوسط (روزمره و تسک‌ها)</span></div>
       </div>
       <div id="tasks2"></div>
-      <button class="add-section-btn" onclick="addItem('tasks2')"><i class="ti ti-plus"></i> افزودن کار اهمیت متوسط</button>
+      <button class="add-section-btn" onclick="addItem('tasks2')"><i class="ti ti-plus"></i> افزودن کار متوسط</button>
 
       <div class="prio-hdr">
-        <div class="prio-hdr-right"><span class="prio-badge pb1">۱</span><span class="prio-lbl lbl1">یک کار شخصی — برای خودم</span></div>
+        <div class="prio-hdr-right"><span class="prio-badge pb1">۱</span><span class="prio-lbl lbl1">کار شخصی (خودمراقبتی و خانه)</span></div>
       </div>
       <div id="tasks1"></div>
       <button class="add-section-btn" onclick="addItem('tasks1')"><i class="ti ti-plus"></i> افزودن کار شخصی</button>
-
-      <div style="margin-top:10px" id="progressArea">
-        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-bottom:4px"><span>پیشرفت امروز</span><span id="progTxt">۰ از ۰</span></div>
-        <div style="height:4px;background:rgba(255,255,255,0.08);border-radius:2px"><div id="progBar" style="height:4px;background:linear-gradient(90deg,var(--gold-light),var(--gold));border-radius:2px;width:0%;transition:width 0.3s;box-shadow:0 0 8px rgba(201,168,76,0.5)"></div></div>
-      </div>
     </div>
 
-    <div class="card">
+    <div class="card" style="display:flex; flex-direction:column;">
       <div class="ch">
         <div class="ch-right">
           <div class="ch-icon"><i class="ti ti-clock" aria-hidden="true"></i></div>
-          <div class="ch-title">برنامه زمانی — Time Blocking</div>
+          <div class="ch-title">Time Blocking — برنامه زمانی</div>
         </div>
       </div>
-      <div class="tb-wrap" id="tbWrap">
+      <div class="tb-wrap" id="tbWrap" style="flex:1;">
         <table class="tb">
-          <thead><tr><th>ساعت</th><th>کار / فعالیت</th></tr></thead>
+          <thead>
+            <tr><th>ساعت</th><th>فعالیت برنامه‌ریزی شده</th></tr>
+          </thead>
           <tbody id="tbBody"></tbody>
         </table>
       </div>
-      <button class="add-section-btn" onclick="addScheduleRow()"><i class="ti ti-plus"></i> افزودن بازه زمانی جدید</button>
+      <button class="add-section-btn" onclick="addScheduleRow('00:00','')"><i class="ti ti-plus"></i> افزودن بلاک زمانی جدید</button>
     </div>
   </div>
 
@@ -508,7 +499,6 @@ table.tb tr:hover td{background:rgba(201,168,76,0.05)}
           <div class="ch-title">ایده‌های پارک شده</div>
         </div>
       </div>
-      <div style="font-size:10px;color:var(--text3);margin-bottom:8px">ایده‌های امروز را بنویس و ۲۴ ساعت به تعویق بینداز.</div>
       <div id="ideas"></div>
       <button class="add-section-btn" onclick="addItem('ideas')"><i class="ti ti-plus"></i> افزودن ایده جدید</button>
     </div>
@@ -556,20 +546,14 @@ table.tb tr:hover td{background:rgba(201,168,76,0.05)}
         </div>
       </div>
     </div>
-    <div style="margin-top:12px;text-align:center;font-size:12px;color:var(--gold-light);font-weight:600;border-top:1px solid var(--glass-border);padding-top:10px">
-      تمرکز کن &nbsp;·&nbsp; برنامه‌ریزی کن &nbsp;·&nbsp; عمل کن &nbsp;·&nbsp; نتیجه بگیر
-    </div>
   </div>
 
   <div class="save-bar">
-    <button class="btn-sec" onclick="clearDay()">پاک کردن</button>
-    <button class="btn-sec" onclick="exportJSON()">دانلود JSON</button>
-    <button class="btn-sec" onclick="importJSON()">بارگذاری JSON</button>
-    <button class="btn-sec" onclick="exportPNG()">دانلود PNG</button>
-    <button class="btn-sec" onclick="exportPDF()">دانلود PDF</button>
-    <button class="btn-sec" onclick="exportHTML()">دانلود HTML</button>
-    <button class="btn-pri" onclick="saveDay()">ذخیره روز</button>
-    <input type="file" id="jsonFile" accept=".json" style="display:none">
+    <input type="file" id="jsonInput" accept=".json" style="display:none;" onchange="handleJSONImport(this)">
+    <button class="btn-sec" onclick="triggerJSONImport()"><i class="ti ti-upload"></i> بارگذاری JSON</button>
+    <button class="btn-sec" onclick="exportJSON()"><i class="ti ti-download"></i> دانلود JSON</button>
+    <button class="btn-sec" onclick="clearDay()"><i class="ti ti-refresh"></i> پاکسازی فرم</button>
+    <button class="btn-pri" onclick="saveDay()"><i class="ti ti-cloud-upload"></i> ثبت و ارسال نهایی</button>
   </div>
 </div>
 
@@ -577,35 +561,37 @@ table.tb tr:hover td{background:rgba(201,168,76,0.05)}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script>
-// لینک اختصاصی وب‌هوک n8n شما در زیر تنظیم شده است
-const N8N_WEBHOOK_URL = "https://testai1223321.app.n8n.cloud/webhook/aev-planner-webhook";
+const N8N_WEBHOOK_URL = "https://n8n.moeinfb.ir/webhook/aev-planner";
 
-let DEFAULT_HOURS = ['04:00','05:00','06:00','07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00','22:00','23:00'];
-let DEFAULT_GOALS = ['هدف اول...','هدف دوم...','هدف سوم...'];
-let DEFAULT_TASKS = ['کار اول...','کار دوم...','کار سوم...'];
-let DEFAULT_IDEAS = ['ایده اول...','ایده دوم...','ایده سوم...','ایده چهارم...'];
-let DEFAULT_CHECKLIST = [
-  {label: 'مطالعه / یادگیری', hasMin: true, icon: 'ti-book', sub: ''},
-  {label: 'ورزش / تحرک', hasMin: true, icon: 'ti-barbell', sub: ''},
-  {label: 'نماز و ذکر و دعا', hasMin: false, icon: 'ti-circle-dot', sub: 'نمازها و ذکر'},
-  {label: 'موسیقی', hasMin: true, icon: 'ti-music', sub: ''},
-  {label: 'یوتیوب / آموزشی', hasMin: true, icon: 'ti-player-play', sub: ''},
-  {label: 'کار روی پروژه‌ها', hasMin: true, icon: 'ti-device-laptop', sub: ''},
-  {label: 'کار روی درآمد', hasMin: true, icon: 'ti-coins', sub: ''}
+const DEFAULT_HOURS = ["05:00","06:00","07:00","08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00","21:00","22:00","23:00"];
+const DEFAULT_GOALS = ["تمرکز روی توسعه سیستم درآمد دلاری و بهبود ترید","تقویت سلامت جسمانی، ورزش و رژیم غذایی پایدار","مطالعه عمیق و ارتقاء مهارت‌های فردی و فنی"];
+const DEFAULT_TASKS = ["کار مهم اول...","کار مهم دوم...","کار مهم سوم..."];
+const DEFAULT_IDEAS = ["ایده خلاقانه یا یادآوری اول..."];
+const DEFAULT_CHECKLIST = [
+  {label:"مدیتیشن و تنفس صبحگاهی", hasMin:false, icon:"ti-wind", sub:"سکوتی برای آرامش ذهن"},
+  {label:"ورزش / پیاده‌روی روزانه", hasMin:true, icon:"ti-barbell", sub:""},
+  {label:"کتابخوانی و یادگیری فعال", hasMin:true, icon:"ti-book", sub:""},
+  {label:"بررسی عملکرد مالی روز", hasMin:false, icon:"ti-coin", sub:"ثبت مخارج و درآمدها"}
 ];
 
 let currentDate = new Date();
-let currentEnergy = '';
+let currentEnergy = "";
 let currentStar = 0;
 let savedDays = {};
 let isEditMode = false;
 
-function getJalaliDate(date) {
-  const g_y = date.getFullYear(), g_m = date.getMonth() + 1, g_d = date.getDate();
+function fmtDate(d){
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const r = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${r}`;
+}
+
+function faDate(date) {
+  let g_y = date.getFullYear(), g_m = date.getMonth() + 1, g_d = date.getDate();
   let jalaliMonthTerms = ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور", "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"];
   let weekdays = ['یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنجشنبه', 'جمعه', 'شنبه'];
   let g_days_in_month = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-  let j_days_in_month = [31, 31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 29];
   if ((g_y % 4 === 0 && g_y % 100 !== 0) || (g_y % 400 === 0)) g_days_in_month[1] = 29;
   let gy = g_y - 1600, gm = g_m - 1, gd = g_d - 1;
   let g_day_no = 365 * gy + Math.floor((gy + 3) / 4) - Math.floor((gy + 93) / 100) + Math.floor((gy + 393) / 400);
@@ -615,32 +601,24 @@ function getJalaliDate(date) {
   j_day_no %= 12053;
   let jy = 979 + 33 * j_np + 4 * Math.floor(j_day_no / 1461);
   j_day_no %= 1461;
-  if (j_day_no >= 366) { jy += Math.floor((j_day_no - 1) / 365); j_day_no = (j_day_no - 1) % 365; }
+  if (j_day_no >= 366) {
+    jy += Math.floor((j_day_no - 1) / 365);
+    j_day_no = (j_day_no - 1) % 365;
+  }
   let jm = 0;
-  for (let i = 0; i < 12; ++i) { if (j_day_no < j_days_in_month[i]) { jm = i; break; } j_day_no -= j_days_in_month[i]; }
-  let jd = j_day_no + 1;
-  const toFa = n => String(n).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
-  return { text: weekdays[date.getDay()] + ' — ' + toFa(jd) + ' ' + jalaliMonthTerms[jm] + ' ' + toFa(jy), stamp: jy + '-' + String(jm+1).padStart(2,'0') + '-' + String(jd).padStart(2,'0') };
+  for (let i = 0; i < 11 && j_day_no >= [31, 31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 29][i]; ++i) {
+    j_day_no -= [31, 31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 29][i];
+    jm++;
+  }
+  return `${weekdays[date.getDay()]}، ${j_day_no + 1} ${jalaliMonthTerms[jm]} ${jy}`;
 }
-
-function getDayCounterText(date) {
-  let baseDate = localStorage.getItem('aevPlanner_baseDate');
-  if (!baseDate) { baseDate = date.toDateString(); localStorage.setItem('aevPlanner_baseDate', baseDate); }
-  const diffTime = Math.abs(new Date(date.toDateString()) - new Date(baseDate));
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-  const toFa = n => String(n).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
-  return ' (روز ' + toFa(diffDays) + ')';
-}
-
-function fmtDate(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
-function faDate(d){ let jalali = getJalaliDate(d); return jalali.text + getDayCounterText(d); }
 
 function toggleEditMode() {
-  isEditMode = !isEditMode;
   const body = document.body;
   const btn = document.getElementById('editToggleBtn');
   const txt = document.getElementById('editBtnText');
   const icon = document.getElementById('editIcon');
+  isEditMode = !isEditMode;
   if(isEditMode) {
     body.classList.add('body-edit-mode');
     btn.classList.add('active-mode');
@@ -660,18 +638,30 @@ function moveRow(btn, direction) {
   if (!row) return;
   if (direction === 'up' && row.previousElementSibling) {
     row.style.transform = 'translateY(-10px)';
-    setTimeout(() => { row.parentNode.insertBefore(row, row.previousElementSibling); row.style.transform = 'none'; updateProgress(); }, 150);
+    setTimeout(() => {
+      row.parentNode.insertBefore(row, row.previousElementSibling);
+      row.style.transform = 'none';
+      updateProgress();
+    }, 150);
   } else if (direction === 'down' && row.nextElementSibling) {
     row.style.transform = 'translateY(10px)';
-    setTimeout(() => { row.parentNode.insertBefore(row.nextElementSibling, row); row.style.transform = 'none'; updateProgress(); }, 150);
+    setTimeout(() => {
+      row.parentNode.insertBefore(row.nextElementSibling, row);
+      row.style.transform = 'none';
+      updateProgress();
+    }, 150);
   }
 }
 
 function deleteRow(btn) {
   const row = btn.closest('.goal-row, .task-row, .idea-row, .cl-row, tr');
   if(row) {
-    row.style.opacity = '0'; row.style.transform = 'scale(0.9)';
-    setTimeout(() => { row.remove(); updateProgress(); }, 200);
+    row.style.opacity = '0';
+    row.style.transform = 'scale(0.9)';
+    setTimeout(() => {
+      row.remove();
+      updateProgress();
+    }, 200);
   }
 }
 
@@ -706,18 +696,23 @@ function addItem(targetId, text = '') {
     div.innerHTML = `<input type="checkbox" class="taskCheck"><span class="task-num">${index}</span><input type="text" placeholder="کار جدید..." value="${text}"><div class="edit-ctrls"><button class="ctrl-btn" onclick="moveRow(this, 'up')"><i class="ti ti-arrow-up"></i></button><button class="ctrl-btn" onclick="moveRow(this, 'down')"><i class="ti ti-arrow-down"></i></button><button class="ctrl-btn" onclick="duplicateRow(this, 'task')"><i class="ti ti-copy"></i></button><button class="ctrl-btn btn-del" onclick="deleteRow(this)"><i class="ti ti-trash"></i></button></div>`;
   } else if (targetId === 'ideas') {
     div.className = 'idea-row';
-    div.innerHTML = `<span class="idea-bullet">◆</span><input type="text" placeholder="ایده جدید..." value="${text}"><div class="edit-ctrls"><button class="ctrl-btn" onclick="moveRow(this, 'up')"><i class="ti ti-arrow-up"></i></button><button class="ctrl-btn" onclick="moveRow(this, 'down')"><i class="ti ti-arrow-down"></i></button><button class="ctrl-btn" onclick="duplicateRow(this, 'idea')"><i class="ti ti-copy"></i></button><button class="ctrl-btn btn-del" onclick="deleteRow(this)"><i class="ti ti-trash"></i></button></div>`;
+    div.innerHTML = `<span class="idea-bullet">•</span><input type="text" placeholder="ایده جدید..." value="${text}"><div class="edit-ctrls"><button class="ctrl-btn" onclick="moveRow(this, 'up')"><i class="ti ti-arrow-up"></i></button><button class="ctrl-btn" onclick="moveRow(this, 'down')"><i class="ti ti-arrow-down"></i></button><button class="ctrl-btn" onclick="duplicateRow(this, 'idea')"><i class="ti ti-copy"></i></button><button class="ctrl-btn btn-del" onclick="deleteRow(this)"><i class="ti ti-trash"></i></button></div>`;
   }
   container.appendChild(div);
-  updateProgress();
+  
+  if(div.querySelector('.taskCheck')) {
+    div.querySelector('.taskCheck').addEventListener('change', updateProgress);
+  }
 }
 
-function addChecklistItem(label = 'آیتم جدید', min = '', checked = false, hasMin = true, icon = 'ti-circle-dot', sub = '') {
+function addChecklistItem(label = 'آیتم جدید', sub = '', checked = false, hasMin = false, icon = 'ti-check', min = 0) {
   const container = document.getElementById('checklist');
   const div = document.createElement('div');
   div.className = 'cl-row';
-  div.innerHTML = `<input type="checkbox" class="taskCheck" ${checked ? 'checked' : ''}><i class="ti ${icon}" aria-hidden="true"></i><span class="cl-label" ondblclick="handleDoubleClickRename(this)" title="برای تغییر نام دابل کلیک کنید">${label}</span>${hasMin ? `<input type="number" class="clMin" min="0" max="999" placeholder="0" value="${min}"><span class="cl-min-lbl">دقیقه</span>` : `<span class="cl-sub">${sub}</span>`}<div class="edit-ctrls"><button class="ctrl-btn" onclick="moveRow(this, 'up')"><i class="ti ti-arrow-up"></i></button><button class="ctrl-btn" onclick="moveRow(this, 'down')"><i class="ti ti-arrow-down"></i></button><button class="ctrl-btn" onclick="duplicateRow(this, 'checklist')"><i class="ti ti-copy"></i></button><button class="ctrl-btn btn-del" onclick="deleteRow(this)"><i class="ti ti-trash"></i></button></div>`;
+  div.innerHTML = `<input type="checkbox" class="clCheck" ${checked ? 'checked' : ''}><i class="ti ${icon}" aria-hidden="true"></i><span class="cl-label" ondblclick="handleDoubleClickRename(this)" title="برای تغییر نام دابل کلیک کنید">${label}</span>${hasMin ? `<input type="number" class="clMin" min="0" max="999" placeholder="0" value="${min}"><span class="cl-min-lbl">دقیقه</span>` : `<span class="cl-sub">${sub}</span>`}<div class="edit-ctrls"><button class="ctrl-btn" onclick="moveRow(this, 'up')"><i class="ti ti-arrow-up"></i></button><button class="ctrl-btn" onclick="moveRow(this, 'down')"><i class="ti ti-arrow-down"></i></button><button class="ctrl-btn" onclick="duplicateRow(this, 'checklist')"><i class="ti ti-copy"></i></button><button class="ctrl-btn btn-del" onclick="deleteRow(this)"><i class="ti ti-trash"></i></button></div>`;
   container.appendChild(div);
+  
+  div.querySelector('.clCheck').addEventListener('change', updateProgress);
   updateProgress();
 }
 
@@ -756,241 +751,325 @@ function selectEnergy(e){
     if(el) el.className='energy-opt e'+x.charAt(0);
   });
   const map={green:'sel-green',yellow:'sel-yellow',red:'sel-red'};
-  const ids={green:'eGreen',yellow:'eYellow',red:'eRed'};
-  if(document.getElementById(ids[e])) document.getElementById(ids[e]).classList.add(map[e]);
-  updateRing(e);
+  const sel=document.getElementById('e'+e.charAt(0).toUpperCase()+e.slice(1));
+  if(sel) sel.className+=' '+map[e];
+  
+  const ringColors={green:'var(--green)',yellow:'var(--yellow)',red:'var(--red)'};
+  updateRing(ringColors[e]||'var(--text3)', e?100:0, e?e.toUpperCase():'');
 }
 
-function updateRing(e){
-  const ring=document.getElementById('energyRing');
-  const txt=document.getElementById('energyRingTxt');
-  const circ=175.93;
-  if(!e){ring.style.strokeDashoffset=circ;txt.textContent='';return;}
-  const map={green:{pct:1,color:'#2DBD8C',label:'بالا'},yellow:{pct:0.6,color:'#E8A020',label:'متوسط'},red:{pct:0.3,color:'#E05252',label:'کم'}};
-  const m=map[e];
-  ring.style.stroke=m.color;
-  ring.style.strokeDashoffset=circ-(circ*m.pct);
-  txt.setAttribute('fill',m.color);
-  txt.textContent=m.label;
+function updateRing(color, pct=0, text=''){
+  const ring = document.getElementById('energyRing');
+  const txt = document.getElementById('energyRingTxt');
+  if(!ring) return;
+  const c = 2*Math.PI*28;
+  ring.style.strokeDasharray = c;
+  ring.style.strokeDashoffset = c - (pct/100)*c;
+  ring.style.stroke = color;
+  if(txt) { txt.textContent = text; txt.style.fill = color; }
 }
 
-function setStar(n){
-  currentStar=n;
-  document.querySelectorAll('.star').forEach((s,i)=>s.classList.toggle('lit',i<n));
+function setStar(num){
+  currentStar=num;
+  const stars=document.getElementById('stars').children;
+  for(let i=0;i<10;i++){
+    if(i<num) stars[i].classList.add('lit');
+    else stars[i].classList.remove('lit');
+  }
 }
 
 function updateProgress(){
-  const all=document.querySelectorAll('.taskCheck');
-  const done=Array.from(all).filter(c=>c.checked).length;
-  const pct=all.length>0?Math.round((done/all.length)*100):0;
-  document.getElementById('progBar').style.width=pct+'%';
-  document.getElementById('progTxt').textContent=done+' از '+all.length;
+  let total=0, done=0;
+  document.querySelectorAll('.taskCheck, .clCheck').forEach(el=>{
+    total++;
+    if(el.checked) done++;
+  });
 }
 
-document.addEventListener('change',e=>{if(e.target.classList.contains('taskCheck'))updateProgress();});
-
 function gatherData(){
-  const goals=[];
-  document.querySelectorAll('#annualGoals .goal-row').forEach(r => { const inp = r.querySelector('input[type=text]'); if(inp) goals.push(inp.value); });
-  const t3=[],t3c=[];
-  document.querySelectorAll('#tasks3 .task-row').forEach(r=>{ const txt = r.querySelector('input[type=text]'); const chk = r.querySelector('input[type=checkbox]'); if(txt) { t3.push(txt.value); t3c.push(chk.checked); } });
-  const t2=[],t2c=[];
-  document.querySelectorAll('#tasks2 .task-row').forEach(r=>{ const txt = r.querySelector('input[type=text]'); const chk = r.querySelector('input[type=checkbox]'); if(txt) { t2.push(txt.value); t2c.push(chk.checked); } });
-  const t1=[],t1c=[];
-  document.querySelectorAll('#tasks1 .task-row').forEach(r=>{ const txt = r.querySelector('input[type=text]'); const chk = r.querySelector('input[type=checkbox]'); if(txt) { t1.push(txt.value); t1c.push(chk.checked); } });
-  const tb_list = [];
-  document.querySelectorAll('#tbBody tr').forEach(tr => { const hDisp = tr.querySelector('.hour-display'); const inp = tr.querySelector('.sched-task-input'); if(hDisp && inp) { tb_list.push({ hour: hDisp.textContent, val: inp.value }); } });
-  const ideas=[];
-  document.querySelectorAll('#ideas .idea-row').forEach(r=>{ const inp = r.querySelector('input[type=text]'); if(inp) ideas.push(inp.value); });
+  const goals=[]; document.querySelectorAll('#annualGoals input').forEach(el=>goals.push(el.value));
+  const t3=[]; const t3c=[]; document.querySelectorAll('#tasks3 .task-row').forEach(el=>{ t3.push(el.querySelector('input[type=text]').value); t3c.push(el.querySelector('.taskCheck').checked); });
+  const t2=[]; const t2c=[]; document.querySelectorAll('#tasks2 .task-row').forEach(el=>{ t2.push(el.querySelector('input[type=text]').value); t2c.push(el.querySelector('.taskCheck').checked); });
+  const t1=[]; const t1c=[]; document.querySelectorAll('#tasks1 .task-row').forEach(el=>{ t1.push(el.querySelector('input[type=text]').value); t1c.push(el.querySelector('.taskCheck').checked); });
+  const ideas=[]; document.querySelectorAll('#ideas input').forEach(el=>ideas.push(el.value));
+  
+  const tb_list=[];
+  document.querySelectorAll('#tbBody tr').forEach(tr=>{
+    const hrEl = tr.querySelector('.hour-display');
+    const inEl = tr.querySelector('.sched-task-input');
+    if(hrEl && inEl) tb_list.push({ hour: hrEl.textContent, val: inEl.value });
+  });
+
   const cl=[];
-  document.querySelectorAll('#checklist .cl-row').forEach(r=>{ const label = r.querySelector('.cl-label').textContent; const minEl = r.querySelector('.clMin'); const subEl = r.querySelector('.cl-sub'); cl.push({ label: label, done: r.querySelector('input[type=checkbox]').checked, min: minEl ? minEl.value : '', hasMin: !!minEl, sub: subEl ? subEl.textContent : '' }); });
-  return{
-    mip:document.getElementById('mip').value, mipDone:document.getElementById('mipDone').checked, energy:currentEnergy, energyReason:document.getElementById('energyReason').value,
-    goals,t3,t3c,t2,t2c,t1,t1c,tb_list,ideas,cl,
-    rev1:document.getElementById('rev1').value, rev2:document.getElementById('rev2').value, rev3:document.getElementById('rev3').value, rev4:document.getElementById('rev4').value,
-    mipTomorrow:document.getElementById('mipTomorrow').value, star:currentStar
+  document.querySelectorAll('#checklist .cl-row').forEach(row=>{
+    const chk = row.querySelector('.clCheck');
+    const lblEl = row.querySelector('.cl-label');
+    const minEl = row.querySelector('.clMin');
+    const subEl = row.querySelector('.cl-sub');
+    cl.push({
+      label: lblEl ? lblEl.textContent : '',
+      done: chk ? chk.checked : false,
+      min: minEl ? parseInt(minEl.value)||0 : 0,
+      sub: subEl ? subEl.textContent : ''
+    });
+  });
+
+  return {
+    mip: document.getElementById('mip').value,
+    mipDone: document.getElementById('mipDone').checked,
+    energy: currentEnergy,
+    energyReason: document.getElementById('energyReason').value,
+    goals, t3, t3c, t2, t2c, t1, t1c, tb_list, ideas, cl,
+    rev1: document.getElementById('rev1').value,
+    rev2: document.getElementById('rev2').value,
+    rev3: document.getElementById('rev3').value,
+    rev4: document.getElementById('rev4').value,
+    mipTomorrow: document.getElementById('mipTomorrow').value,
+    star: currentStar
   };
 }
 
 function applyData(d){
-  if(!d) { initDefaultSections(); buildTB(); clearDayUI(); return; }
-  document.getElementById('mip').value=d.mip||'';
-  document.getElementById('mipDone').checked=!!d.mipDone;
+  if(!d) {
+    initDefaultSections();
+    buildTB();
+    clearDayUI();
+    return;
+  }
+  document.getElementById('mip').value = d.mip||'';
+  document.getElementById('mipDone').checked = !!d.mipDone;
   if(d.energy) selectEnergy(d.energy); else updateRing('');
-  document.getElementById('energyReason').value=d.energyReason||'';
+  document.getElementById('energyReason').value = d.energyReason||'';
   
-  const goalsCont = document.getElementById('annualGoals'); goalsCont.innerHTML = '';
-  if(d.goals && d.goals.length) { d.goals.forEach(g => addItem('annualGoals', g)); } else { DEFAULT_GOALS.forEach(g => addItem('annualGoals', g)); }
+  const goalsCont = document.getElementById('annualGoals');
+  goalsCont.innerHTML = '';
+  if(d.goals && d.goals.length) d.goals.forEach(g => addItem('annualGoals', g));
+  else DEFAULT_GOALS.forEach(g => addItem('annualGoals', g));
 
   const t3Cont = document.getElementById('tasks3'); t3Cont.innerHTML = '';
-  if(d.t3) { d.t3.forEach((val, i) => { addItem('tasks3', val); const rows = t3Cont.querySelectorAll('.task-row'); if(rows[i]) rows[i].querySelector('input[type=checkbox]').checked = !!d.t3c[i]; }); } else { DEFAULT_TASKS.forEach(t => addItem('tasks3', t)); }
+  if(d.t3) {
+    d.t3.forEach((val, i) => {
+      addItem('tasks3', val);
+      const rows = t3Cont.querySelectorAll('.task-row');
+      if(rows[i]) rows[i].querySelector('input[type=checkbox]').checked = !!d.t3c[i];
+    });
+  } else DEFAULT_TASKS.forEach(t => addItem('tasks3', t));
 
   const t2Cont = document.getElementById('tasks2'); t2Cont.innerHTML = '';
-  if(d.t2) { d.t2.forEach((val, i) => { addItem('tasks2', val); const rows = t2Cont.querySelectorAll('.task-row'); if(rows[i]) rows[i].querySelector('input[type=checkbox]').checked = !!d.t2c[i]; }); } else { DEFAULT_TASKS.slice(0,2).forEach(t => addItem('tasks2', t)); }
+  if(d.t2) {
+    d.t2.forEach((val, i) => {
+      addItem('tasks2', val);
+      const rows = t2Cont.querySelectorAll('.task-row');
+      if(rows[i]) rows[i].querySelector('input[type=checkbox]').checked = !!d.t2c[i];
+    });
+  } else DEFAULT_TASKS.slice(0,2).forEach(t => addItem('tasks2', t));
 
   const t1Cont = document.getElementById('tasks1'); t1Cont.innerHTML = '';
-  if(d.t1) { d.t1.forEach((val, i) => { addItem('tasks1', val); const rows = t1Cont.querySelectorAll('.task-row'); if(rows[i]) rows[i].querySelector('input[type=checkbox]').checked = !!d.t1c[i]; }); } else { addItem('tasks1', 'کار شخصی...'); }
+  if(d.t1) {
+    d.t1.forEach((val, i) => {
+      addItem('tasks1', val);
+      const rows = t1Cont.querySelectorAll('.task-row');
+      if(rows[i]) rows[i].querySelector('input[type=checkbox]').checked = !!d.t1c[i];
+    });
+  } else addItem('tasks1', 'کار شخصی...');
 
-  const tbBody = document.getElementById('tbBody'); tbBody.innerHTML = '';
-  if (d.tb_list && d.tb_list.length) { d.tb_list.forEach(item => { addScheduleRow(item.hour, item.val); }); } else if(d.tb) { DEFAULT_HOURS.forEach(h => { addScheduleRow(h, d.tb[h] || ''); }); } else { DEFAULT_HOURS.forEach(h => addScheduleRow(h, '')); }
+  const tbBody = document.getElementById('tbBody');
+  tbBody.innerHTML = '';
+  if (d.tb_list && d.tb_list.length) {
+    d.tb_list.forEach(item => addScheduleRow(item.hour, item.val));
+  } else if(d.tb) {
+    DEFAULT_HOURS.forEach(h => addScheduleRow(h, d.tb[h] || ''));
+  } else {
+    DEFAULT_HOURS.forEach(h => addScheduleRow(h, ''));
+  }
 
   const ideasCont = document.getElementById('ideas'); ideasCont.innerHTML = '';
-  if(d.ideas) { d.ideas.forEach(id => addItem('ideas', id)); } else { DEFAULT_IDEAS.forEach(id => addItem('ideas', id)); }
+  if(d.ideas) d.ideas.forEach(id => addItem('ideas', id));
+  else DEFAULT_IDEAS.forEach(id => addItem('ideas', id));
 
   const clCont = document.getElementById('checklist'); clCont.innerHTML = '';
-  if(d.cl) { d.cl.forEach(item => { addChecklistItem(item.label, item.min, item.done, item.hasMin !== false, 'ti-circle-dot', item.sub || ''); }); } else { DEFAULT_CHECKLIST.forEach(cl => addChecklistItem(cl.label, '', false, cl.hasMin, cl.icon, cl.sub)); }
+  if(d.cl) {
+    d.cl.forEach(item => {
+      addChecklistItem(item.label, item.sub, !!item.done, item.min > 0 || item.label.includes('ورزش') || item.label.includes('کتاب'), false, item.min);
+    });
+  } else {
+    DEFAULT_CHECKLIST.forEach(cl => addChecklistItem(cl.label, '', false, cl.hasMin, cl.icon, cl.sub));
+  }
 
-  document.getElementById('rev1').value=d.rev1||''; document.getElementById('rev2').value=d.rev2||''; document.getElementById('rev3').value=d.rev3||''; document.getElementById('rev4').value=d.rev4||'';
-  document.getElementById('mipTomorrow').value=d.mipTomorrow||'';
+  document.getElementById('rev1').value = d.rev1||'';
+  document.getElementById('rev2').value = d.rev2||'';
+  document.getElementById('rev3').value = d.rev3||'';
+  document.getElementById('rev4').value = d.rev4||'';
+  document.getElementById('mipTomorrow').value = d.mipTomorrow||'';
   setStar(d.star||0);
   updateProgress();
 }
 
-function saveDay() { const modal = document.getElementById('confirmModal'); modal.classList.add('active'); }
+function saveDay(){
+  document.getElementById('confirmModal').classList.add('active');
+}
 
-// منطق ارسال خودکار داده‌ها به وب‌هوک n8n شما
-async function handleConfirmSave(isConfirmed) { 
-  const modal = document.getElementById('confirmModal'); 
-  modal.classList.remove('active'); 
-  if (isConfirmed) { 
-    saveDaySilent(); 
-    const key = fmtDate(currentDate); 
+async function handleConfirmSave(confirm){
+  document.getElementById('confirmModal').classList.remove('active');
+  if(confirm){
+    saveDaySilent();
+    const key = fmtDate(currentDate);
+    const dayData = gatherData();
     
+    // آماده‌سازی ساختار دیتای ارسالی با فیلد JSON متنی
     const payload = {
       date: key,
-      data: gatherData()
+      fa_date: faDate(currentDate),
+      json_string: JSON.stringify(dayData), // تبدیل کل ساختار به یک رشته متنی JSON
+      ...dayData // فرستادن فیلدهای اصلی برای راحتی مپ کردن در وب‌هوک
     };
-
-    showToast('در حال ارسال داده‌ها به گوگل شیت...');
 
     try {
       const response = await fetch(N8N_WEBHOOK_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
-
       if(response.ok) {
-        showToast('اطلاعات روز ' + key + ' با موفقیت به گوگل شیت ارسال شد ✓');
+        showToast('اطلاعات با موفقیت ذخیره و کد JSON به n8n ارسال شد ✓');
       } else {
-        showToast('خطا در ارسال به n8n (کد خطا: ' + response.status + ')');
+        showToast('خطا در ارسال داده به n8n! ذخیره محلی انجام شد.');
       }
     } catch (err) {
       console.error(err);
-      showToast('خطا در ارتباط با وب‌هوک n8n. ذخیره محلی انجام شد.');
+      showToast('خطای شبکه در ارتباط با وب‌هوک n8n. ذخیره محلی انجام شد.');
     }
-
-  } else { 
-    showToast('ذخیره‌سازی لغو شد'); 
-  } 
+  } else {
+    showToast('ذخیره‌سازی لغو شد');
+  }
 }
 
-function saveDaySilent() { const key = fmtDate(currentDate); savedDays[key] = gatherData(); try{localStorage.setItem('aevPlannerPro', JSON.stringify(savedDays));}catch(e){} renderDaysNav(); }
+function saveDaySilent() {
+  const key = fmtDate(currentDate);
+  savedDays[key] = gatherData();
+  try{localStorage.setItem('aevPlannerPro', JSON.stringify(savedDays));}catch(e){}
+  renderDaysNav();
+}
 
 function clearDayUI() {
-  document.getElementById('mip').value=''; document.getElementById('mipDone').checked=false; document.getElementById('energyReason').value='';
-  document.getElementById('rev1').value=''; document.getElementById('rev2').value=''; document.getElementById('rev3').value=''; document.getElementById('rev4').value=''; document.getElementById('mipTomorrow').value='';
+  document.getElementById('mip').value='';
+  document.getElementById('mipDone').checked=false;
+  document.getElementById('energyReason').value='';
+  document.getElementById('rev1').value='';
+  document.getElementById('rev2').value='';
+  document.getElementById('rev3').value='';
+  document.getElementById('rev4').value='';
+  document.getElementById('mipTomorrow').value='';
   currentEnergy='';
-  ['eGreen','eYellow','eRed'].forEach(id=>{ const el=document.getElementById(id); const cls={'eGreen':'eg','eYellow':'ey','eRed':'er'}; if(el) el.className='energy-opt '+cls[id]; });
-  updateRing(''); setStar(0); updateProgress();
+  ['eGreen','eYellow','eRed'].forEach(id=>{
+    const el=document.getElementById(id);
+    const cls={'eGreen':'eg','eYellow':'ey','eRed':'er'};
+    if(el) el.className='energy-opt '+cls[id];
+  });
+  updateRing('');
+  setStar(0);
+  updateProgress();
 }
 
-function clearDay(){ clearDayUI(); initDefaultSections(); buildTB(); }
-function changeDay(delta){ saveDaySilent(); const nd=new Date(currentDate); nd.setDate(nd.getDate()+delta); currentDate=nd; document.getElementById('dateDisplay').textContent=faDate(currentDate); clearDayUI(); applyData(savedDays[fmtDate(currentDate)]); renderDaysNav(); }
-function goToDay(key){ saveDaySilent(); const p=key.split('-'); currentDate=new Date(+p[0],+p[1]-1,+p[2]); document.getElementById('dateDisplay').textContent=faDate(currentDate); clearDayUI(); applyData(savedDays[key]); renderDaysNav(); }
-function renderDaysNav(){ const nav=document.getElementById('daysNav'); const keys=Object.keys(savedDays).sort().reverse().slice(0,12); if(!keys.length){nav.innerHTML='';return;} const cur=fmtDate(currentDate); nav.innerHTML=keys.map(k=>`<div class="day-chip${k===cur?' active':''}" onclick="goToDay('${k}')">${k}</div>`).join(''); }
-function showToast(msg){ const t=document.getElementById('toastBox'); t.textContent=msg; t.style.opacity='1'; setTimeout(()=>t.style.opacity='0',2500); }
+function clearDay(){
+  if(confirm("آیا از پاکسازی کامل اطلاعات امروز اطمینان دارید؟")){
+    clearDayUI();
+    initDefaultSections();
+    buildTB();
+  }
+}
 
-document.getElementById('dateDisplay').textContent=faDate(currentDate);
-try{ const saved=localStorage.getItem('aevPlannerPro'); if(saved) savedDays=JSON.parse(saved); const key=fmtDate(currentDate); if(savedDays[key]) applyData(savedDays[key]); else { applyData(null); } }catch(e){ applyData(null); }
-renderDaysNav();
-
-function exportJSON(){ saveDaySilent(); const dataStr = JSON.stringify(savedDays,null,2); const blob = new Blob([dataStr], {type:'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'AEV-Planner-' + fmtDate(currentDate) + '.json'; a.click(); URL.revokeObjectURL(a.href); }
-function importJSON(){ document.getElementById('jsonFile').click(); }
-document.getElementById('jsonFile').addEventListener('change',function(e){ const file=e.target.files[0]; if(!file) return; const reader=new FileReader(); reader.onload=function(){ try{ savedDays=JSON.parse(reader.result); localStorage.setItem('aevPlannerPro', JSON.stringify(savedDays)); renderDaysNav(); const key=fmtDate(currentDate); if(savedDays[key]){ applyData(savedDays[key]); } showToast('فایل JSON بارگذاری شد ✓'); }catch(err){ alert('فایل معتبر نیست'); } }; reader.readAsText(file); });
-
-function expandTBForExport(){ const wrap=document.getElementById('tbWrap'); if(wrap) wrap.classList.add('export-expanded'); }
-function collapseTBAfterExport(){ const wrap=document.getElementById('tbWrap'); if(wrap) wrap.classList.remove('export-expanded'); }
-
-async function exportPNG(){ saveDaySilent(); expandTBForExport(); window.scrollTo(0,0); await new Promise(r=>setTimeout(r,50)); const canvas=await html2canvas(document.body,{ scale:2, useCORS:true, windowWidth:document.documentElement.scrollWidth, windowHeight:document.documentElement.scrollHeight, scrollX:0, scrollY:0 }); collapseTBAfterExport(); const link=document.createElement('a'); link.href=canvas.toDataURL('image/png'); link.download='AEV-Planner-'+fmtDate(currentDate)+'.png'; link.click(); showToast('PNG ذخیره شد ✓'); }
-async function exportPDF(){ saveDaySilent(); expandTBForExport(); window.scrollTo(0,0); await new Promise(r=>setTimeout(r,50)); const canvas=await html2canvas(document.body,{ scale:2, useCORS:true, windowWidth:document.documentElement.scrollWidth, windowHeight:document.documentElement.scrollHeight, scrollX:0, scrollY:0 }); collapseTBAfterExport(); const img=canvas.toDataURL('image/png'); const {jsPDF}=window.jspdf; const pdf=new jsPDF('p','mm','a4'); const pageWidth=210; const pageHeight=297; const imgHeight=(canvas.height*pageWidth)/canvas.width; let heightLeft=imgHeight; let position=0; pdf.addImage(img,'PNG',0,position,pageWidth,imgHeight); heightLeft-=pageHeight; while(heightLeft>0){ position=heightLeft-imgHeight; pdf.addPage(); pdf.addImage(img,'PNG',0,position,pageWidth,imgHeight); heightLeft-=pageHeight; } pdf.save('AEV-Planner-'+fmtDate(currentDate)+'.pdf'); showToast('PDF ذخیره شد ✓'); }
-
-function exportHTML(){
+function changeDay(delta){
   saveDaySilent();
-  const currentData = gatherData();
-  
-  document.querySelectorAll('textarea, input[type=text], input[type=number]').forEach(el => {
-    el.setAttribute('value', el.value);
-    if(el.tagName.toLowerCase() === 'textarea') el.textContent = el.value;
-    el.setAttribute('readonly', 'readonly');
-    el.setAttribute('disabled', 'disabled');
-  });
-  
-  document.querySelectorAll('input[type=checkbox]').forEach(el => {
-    if(el.checked) el.setAttribute('checked', 'checked');
-    else el.removeAttribute('checked');
-    el.setAttribute('disabled', 'disabled');
-    el.setAttribute('onclick', 'return false;');
-  });
-
-  let docString = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
-  
-  const injectScript = `<script>
-    document.addEventListener("DOMContentLoaded", function() {
-      document.body.classList.add('html-preview-mode');
-      
-      document.querySelectorAll('input, textarea').forEach(el => {
-        el.setAttribute('readonly', true);
-        el.setAttribute('disabled', true);
-        if(el.getAttribute('type') === 'checkbox') {
-          el.setAttribute('onclick', 'return false;');
-          el.addEventListener('click', function(e) { e.preventDefault(); return false; });
-        }
-        el.style.color = 'var(--text)';
-        el.style.opacity = '0.9';
-      });
-
-      document.querySelectorAll('.star').forEach(el => {
-        el.removeAttribute('onclick');
-        el.style.pointerEvents = 'none';
-      });
-
-      document.querySelectorAll('.energy-opt').forEach(el => {
-        el.removeAttribute('onclick');
-        el.style.pointerEvents = 'none';
-      });
-      
-      const staticData = ${JSON.stringify(currentData)};
-      if (typeof applyData === 'function') { 
-        applyData(staticData); 
-      }
-      
-      setTimeout(() => {
-        document.querySelectorAll('input, textarea').forEach(el => {
-          el.setAttribute('readonly', true);
-          el.setAttribute('disabled', true);
-          if(el.getAttribute('type') === 'checkbox') el.setAttribute('onclick', 'return false;');
-        });
-        document.querySelectorAll('.star, .energy-opt').forEach(el => {
-          el.style.pointerEvents = 'none';
-          el.removeAttribute('onclick');
-        });
-      }, 80);
-    });
-  <\/script>`;
-  
-  docString = docString.replace('</body>', injectScript + '</body>');
-  
-  const blob = new Blob([docString], {type:'text/html'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'AEV-Planner-Archive-' + fmtDate(currentDate) + '.html';
-  a.click();
-  URL.revokeObjectURL(a.href);
-  showToast('HTML نمایشی ذخیره شد ✓');
+  const nd=new Date(currentDate);
+  nd.setDate(nd.getDate()+delta);
+  currentDate=nd;
+  document.getElementById('dateDisplay').textContent=faDate(currentDate);
+  clearDayUI();
+  applyData(savedDays[fmtDate(currentDate)]);
+  renderDaysNav();
 }
+
+function goToDay(key){
+  saveDaySilent();
+  const p=key.split('-');
+  currentDate=new Date(+p[0],+p[1]-1,+p[2]);
+  document.getElementById('dateDisplay').textContent=faDate(currentDate);
+  clearDayUI();
+  applyData(savedDays[key]);
+  renderDaysNav();
+}
+
+function renderDaysNav(){
+  const nav=document.getElementById('daysNav');
+  const keys=Object.keys(savedDays).sort().reverse().slice(0,12);
+  if(!keys.length){nav.innerHTML='';return;}
+  const cur=fmtDate(currentDate);
+  nav.innerHTML=keys.map(k=>`<div class="day-chip${k===cur?' active':''}" onclick="goToDay('${k}')">${k}</div>`).join('');
+}
+
+function showToast(msg){
+  const t=document.getElementById('toastBox');
+  t.textContent=msg;
+  t.style.opacity='1';
+  setTimeout(()=>t.style.opacity='0',2500);
+}
+
+// توابع دانلود و بارگذاری اختصاصی فایل سیستم JSON پشتیبان
+function exportJSON() {
+  saveDaySilent();
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(savedDays, null, 2));
+  const downloadAnchor = document.createElement('a');
+  downloadAnchor.setAttribute("href", dataStr);
+  downloadAnchor.setAttribute("download", `AEV-Planner-Backup-${fmtDate(currentDate)}.json`);
+  document.body.appendChild(downloadAnchor);
+  downloadAnchor.click();
+  downloadAnchor.remove();
+  showToast('فایل پشتیبان JSON با موفقیت دانلود شد ✓');
+}
+
+function triggerJSONImport() {
+  document.getElementById('jsonInput').click();
+}
+
+function handleJSONImport(input) {
+  const file = input.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const parsedData = JSON.parse(e.target.result);
+      if (typeof parsedData === 'object' && parsedData !== null) {
+        // ادغام داده‌های جدید با دیتای قبلی موجود در حافظه مرورگر
+        savedDays = { ...savedDays, ...parsedData };
+        localStorage.setItem('aevPlannerPro', JSON.stringify(savedDays));
+        
+        // بازنشانی روز فعلی روی صفحه رندر شده
+        applyData(savedDays[fmtDate(currentDate)]);
+        renderDaysNav();
+        showToast('پشتیبان JSON با موفقیت بارگذاری و اعمال شد ✓');
+      } else {
+        alert('فرمت فایل JSON نامعتبر است.');
+      }
+    } catch (err) {
+      alert('خطا در خواندن فایل JSON. از سلامت فایل مطمئن شوید.');
+    }
+  };
+  reader.readAsText(file);
+  input.value = ''; // ریست کردن مقدار اینپوت برای دفعات بعدی
+}
+
+// راه‌اندازی اولیه برنامه
+document.getElementById('dateDisplay').textContent=faDate(currentDate);
+try{
+  const saved=localStorage.getItem('aevPlannerPro');
+  if(saved) savedDays=JSON.parse(saved);
+}catch(e){}
+
+applyData(savedDays[fmtDate(currentDate)]);
+renderDaysNav();
 </script>
+
 </body>
 </html>
