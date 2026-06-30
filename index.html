@@ -66,6 +66,7 @@ img,canvas,svg{max-width:100%}
 }
 .save-btn:hover{transform:translateY(-1px);box-shadow:0 10px 26px rgba(201,168,76,0.45), inset 0 1px 0 rgba(255,255,255,0.5)}
 
+/* استایل دکمه مود ویرایش */
 .edit-toggle-btn {
   background: var(--glass-bg-soft);
   border: 1px solid var(--glass-border);
@@ -174,6 +175,7 @@ input[type=checkbox]{width:15px;height:15px;accent-color:var(--gold);cursor:poin
 .er .e-label{color:var(--red)}
 .e-sub{font-size:10px;color:var(--text3)}
 
+/* کنترل‌های مدیریتی داینامیک */
 .edit-ctrls {
   display: none;
   align-items: center;
@@ -269,7 +271,7 @@ table.tb tr:hover td{background:rgba(201,168,76,0.05)}
 .rev-q{font-size:10px;color:var(--text3);margin-bottom:5px}
 .rev-bottom{display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-top:10px}
 .star-row{display:flex;gap:4px;flex-wrap:wrap}
-.star{font-size:20px;cursor:pointer;color:rgba(255,255,255,0.12);transition:color 0.15s, transform 0.15s}
+.star animate{font-size:20px;cursor:pointer;color:rgba(255,255,255,0.12);transition:color 0.15s, transform 0.15s}
 .star:hover{transform:scale(1.15)}
 .star.lit{color:var(--gold-light);text-shadow:0 0 8px rgba(201,168,76,0.5)}
 .star-lbl{font-size:10px;color:var(--text3);margin-bottom:4px}
@@ -301,6 +303,7 @@ table.tb tr:hover td{background:rgba(201,168,76,0.05)}
 .progress-ring-wrap{display:flex;justify-content:center;margin-bottom:8px}
 .ring-label{font-size:10px;color:var(--text3);text-align:center;margin-top:4px}
 
+/* استایل دیالوگ تأیید اختصاصی */
 .confirm-modal {
   position: fixed; top: 0; left: 0; right: 0; bottom: 0;
   background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
@@ -321,6 +324,7 @@ table.tb tr:hover td{background:rgba(201,168,76,0.05)}
 
 .tb-wrap.export-expanded{max-height:none !important;overflow:visible !important}
 
+/* کلاس مخصوص حالت آرشیو کاملاً قفل، غیرفعال و صِرفاً نمایشی */
 .html-preview-mode, .html-preview-mode body {
   cursor: default !important;
 }
@@ -343,6 +347,7 @@ table.tb tr:hover td{background:rgba(201,168,76,0.05)}
   opacity: 0.9 !important;
   background: rgba(255,255,255,0.02) !important;
 }
+/* قفل کامل تعامل با ستاره‌های امتیازدهی و وضعیت‌های انرژی در نسخه آرشیو */
 .html-preview-mode .star, 
 .html-preview-mode .energy-opt {
   pointer-events: none !important;
@@ -358,7 +363,7 @@ table.tb tr:hover td{background:rgba(201,168,76,0.05)}
   <div id="confirmModal" class="confirm-modal">
     <div class="confirm-box">
       <div class="confirm-title">تایید نهایی ذخیره‌سازی</div>
-      <div class="confirm-desc">آیا از ذخیره تغییرات امروز و ارسال تصویر پلنر (PNG) به n8n اطمینان دارید؟ (کل داده‌ها به صورت محلی نیز ذخیره می‌شوند)</div>
+      <div class="confirm-desc">آیا از ذخیره تغییرات امروز و ارسال به گوگل شیت اطمینان دارید؟</div>
       <div class="confirm-actions">
         <button class="btn-pri" onclick="handleConfirmSave(true)">بله، مطمئنم</button>
         <button class="btn-sec" onclick="handleConfirmSave(false)">خیر</button>
@@ -572,6 +577,7 @@ table.tb tr:hover td{background:rgba(201,168,76,0.05)}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script>
+// لینک اختصاصی وب‌هوک n8n شما در زیر تنظیم شده است
 const N8N_WEBHOOK_URL = "https://testai1223321.app.n8n.cloud/webhook/aev-planner-webhook";
 
 let DEFAULT_HOURS = ['04:00','05:00','06:00','07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00','22:00','23:00'];
@@ -722,7 +728,7 @@ function addScheduleRow(hour = '00:00', text = '') {
   tb.appendChild(tr);
 }
 
-function buildTB()){
+function buildTB(){
   const tb = document.getElementById('tbBody');
   tb.innerHTML = '';
   DEFAULT_HOURS.forEach(h => addScheduleRow(h, ''));
@@ -798,24 +804,11 @@ function gatherData(){
   document.querySelectorAll('#ideas .idea-row').forEach(r=>{ const inp = r.querySelector('input[type=text]'); if(inp) ideas.push(inp.value); });
   const cl=[];
   document.querySelectorAll('#checklist .cl-row').forEach(r=>{ const label = r.querySelector('.cl-label').textContent; const minEl = r.querySelector('.clMin'); const subEl = r.querySelector('.cl-sub'); cl.push({ label: label, done: r.querySelector('input[type=checkbox]').checked, min: minEl ? minEl.value : '', hasMin: !!minEl, sub: subEl ? subEl.textContent : '' }); });
-  
-  let jalali = getJalaliDate(currentDate);
-
   return{
-    date_miladi: fmtDate(currentDate),
-    date_shamsi: jalali.text,
-    date_stamp: jalali.stamp,
-    mip: document.getElementById('mip').value, 
-    mipDone: document.getElementById('mipDone').checked, 
-    energy: currentEnergy, 
-    energyReason: document.getElementById('energyReason').value,
+    mip:document.getElementById('mip').value, mipDone:document.getElementById('mipDone').checked, energy:currentEnergy, energyReason:document.getElementById('energyReason').value,
     goals,t3,t3c,t2,t2c,t1,t1c,tb_list,ideas,cl,
-    rev1: document.getElementById('rev1').value, 
-    rev2: document.getElementById('rev2').value, 
-    rev3: document.getElementById('rev3').value, 
-    rev4: document.getElementById('rev4').value,
-    mipTomorrow: document.getElementById('mipTomorrow').value, 
-    star: currentStar
+    rev1:document.getElementById('rev1').value, rev2:document.getElementById('rev2').value, rev3:document.getElementById('rev3').value, rev4:document.getElementById('rev4').value,
+    mipTomorrow:document.getElementById('mipTomorrow').value, star:currentStar
   };
 }
 
@@ -855,69 +848,38 @@ function applyData(d){
 
 function saveDay() { const modal = document.getElementById('confirmModal'); modal.classList.add('active'); }
 
-async function generatePNGBlob() {
-  expandTBForExport();
-  window.scrollTo(0,0);
-  await new Promise(r=>setTimeout(r,150)); // افزایش زمان انتظار برای ثبات استایل‌ها
-  try {
-    const canvas = await html2canvas(document.body,{
-      scale: 2,
-      useCORS: true,
-      logging: false,
-      windowWidth: document.documentElement.scrollWidth,
-      windowHeight: document.documentElement.scrollHeight,
-      scrollX: 0, scrollY: 0
-    });
-    collapseTBAfterExport();
-    return new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-  } catch(e) {
-    console.error("Canvas Render Error:", e);
-    collapseTBAfterExport();
-    return null;
-  }
-}
-
+// منطق ارسال خودکار داده‌ها به وب‌هوک n8n شما
 async function handleConfirmSave(isConfirmed) { 
   const modal = document.getElementById('confirmModal'); 
   modal.classList.remove('active'); 
-  
   if (isConfirmed) { 
-    // ۱. ابتدا ذخیره کامل تمام داده‌ها به صورت محلی انجام می‌شود تا تحت هیچ شرایطی دیتا نپرد
     saveDaySilent(); 
     const key = fmtDate(currentDate); 
+    
+    const payload = {
+      date: key,
+      data: gatherData()
+    };
 
-    showToast('در حال پردازش و تولید فایل تصویر پلنر...');
+    showToast('در حال ارسال داده‌ها به گوگل شیت...');
 
     try {
-      // ۲. ساخت خودکار Blob تصویر PNG
-      const pngBlob = await generatePNGBlob();
-      if (!pngBlob) {
-        showToast('خطا در ساخت فایل تصویر! داده‌ها محلی ذخیره شدند.');
-        return;
-      }
-      
-      // ۳. قرار دادن تصویر در بدنه فرم بدون دیتای اضافی متنی یا PDF
-      const formData = new FormData();
-      formData.append("file", pngBlob, `AEV-Planner-${key}.png`);
-
-      showToast('در حال ارسال تصویر به n8n...');
-
-      // ۴. ارسال درخواست نهایی به سرور n8n با تنظیمات پایه حالت Cors
       const response = await fetch(N8N_WEBHOOK_URL, {
         method: "POST",
-        mode: "cors",
-        body: formData
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
       });
 
       if(response.ok) {
-        showToast('تصویر پلنر با موفقیت به n8n ارسال و به صورت محلی ذخیره شد ✓');
+        showToast('اطلاعات روز ' + key + ' با موفقیت به گوگل شیت ارسال شد ✓');
       } else {
-        const errText = await response.text().catch(() => '');
-        showToast(`خطای وب‌هوک: ${response.status} - تصویر ارسال نشد اما ذخیره محلی شد.`);
+        showToast('خطا در ارسال به n8n (کد خطا: ' + response.status + ')');
       }
     } catch (err) {
-      console.error("Error sending to n8n:", err);
-      showToast('خطای اتصال شبکه یا بلاک CORS وب‌هوک! داده‌ها به صورت محلی امن هستند.');
+      console.error(err);
+      showToast('خطا در ارتباط با وب‌هوک n8n. ذخیره محلی انجام شد.');
     }
 
   } else { 
@@ -958,30 +920,76 @@ async function exportPDF(){ saveDaySilent(); expandTBForExport(); window.scrollT
 function exportHTML(){
   saveDaySilent();
   const currentData = gatherData();
+  
   document.querySelectorAll('textarea, input[type=text], input[type=number]').forEach(el => {
     el.setAttribute('value', el.value);
     if(el.tagName.toLowerCase() === 'textarea') el.textContent = el.value;
-    el.setAttribute('readonly', 'readonly'); el.setAttribute('disabled', 'disabled');
+    el.setAttribute('readonly', 'readonly');
+    el.setAttribute('disabled', 'disabled');
   });
+  
   document.querySelectorAll('input[type=checkbox]').forEach(el => {
-    if(el.checked) el.setAttribute('checked', 'checked'); else el.removeAttribute('checked');
-    el.setAttribute('disabled', 'disabled'); el.setAttribute('onclick', 'return false;');
+    if(el.checked) el.setAttribute('checked', 'checked');
+    else el.removeAttribute('checked');
+    el.setAttribute('disabled', 'disabled');
+    el.setAttribute('onclick', 'return false;');
   });
+
   let docString = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+  
   const injectScript = `<script>
     document.addEventListener("DOMContentLoaded", function() {
       document.body.classList.add('html-preview-mode');
+      
       document.querySelectorAll('input, textarea').forEach(el => {
-        el.setAttribute('readonly', true); el.setAttribute('disabled', true);
-        if(el.getAttribute('type') === 'checkbox') { el.setAttribute('onclick', 'return false;'); }
+        el.setAttribute('readonly', true);
+        el.setAttribute('disabled', true);
+        if(el.getAttribute('type') === 'checkbox') {
+          el.setAttribute('onclick', 'return false;');
+          el.addEventListener('click', function(e) { e.preventDefault(); return false; });
+        }
+        el.style.color = 'var(--text)';
+        el.style.opacity = '0.9';
       });
+
+      document.querySelectorAll('.star').forEach(el => {
+        el.removeAttribute('onclick');
+        el.style.pointerEvents = 'none';
+      });
+
+      document.querySelectorAll('.energy-opt').forEach(el => {
+        el.removeAttribute('onclick');
+        el.style.pointerEvents = 'none';
+      });
+      
       const staticData = ${JSON.stringify(currentData)};
-      if (typeof applyData === 'function') { applyData(staticData); }
+      if (typeof applyData === 'function') { 
+        applyData(staticData); 
+      }
+      
+      setTimeout(() => {
+        document.querySelectorAll('input, textarea').forEach(el => {
+          el.setAttribute('readonly', true);
+          el.setAttribute('disabled', true);
+          if(el.getAttribute('type') === 'checkbox') el.setAttribute('onclick', 'return false;');
+        });
+        document.querySelectorAll('.star, .energy-opt').forEach(el => {
+          el.style.pointerEvents = 'none';
+          el.removeAttribute('onclick');
+        });
+      }, 80);
     });
   <\/script>`;
+  
   docString = docString.replace('</body>', injectScript + '</body>');
+  
   const blob = new Blob([docString], {type:'text/html'});
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'AEV-Planner-Archive-' + fmtDate(currentDate) + '.html'; a.click(); URL.revokeObjectURL(a.href); showToast('HTML نمایشی ذخیره شد ✓');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'AEV-Planner-Archive-' + fmtDate(currentDate) + '.html';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  showToast('HTML نمایشی ذخیره شد ✓');
 }
 </script>
 </body>
