@@ -363,7 +363,7 @@ table.tb tr:hover td{background:rgba(201,168,76,0.05)}
   <div id="confirmModal" class="confirm-modal">
     <div class="confirm-box">
       <div class="confirm-title">تایید نهایی ذخیره‌سازی</div>
-      <div class="confirm-desc">آیا از ذخیره تغییرات امروز و ارسال به گوگل شیت اطمینان دارید؟</div>
+      <div class="confirm-desc">آیا از ذخیره تغییرات امروز و ارسال اطلاعات + فایل PDF به n8n اطمینان دارید؟</div>
       <div class="confirm-actions">
         <button class="btn-pri" onclick="handleConfirmSave(true)">بله، مطمئنم</button>
         <button class="btn-sec" onclick="handleConfirmSave(false)">خیر</button>
@@ -577,7 +577,7 @@ table.tb tr:hover td{background:rgba(201,168,76,0.05)}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script>
-// لینک اختصاصی وب‌هوک n8n شما در زیر تنظیم شده است
+// لینک اختصاصی وب‌هوک n8n شما
 const N8N_WEBHOOK_URL = "https://testai1223321.app.n8n.cloud/webhook/aev-planner-webhook";
 
 let DEFAULT_HOURS = ['04:00','05:00','06:00','07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00','22:00','23:00'];
@@ -804,11 +804,24 @@ function gatherData(){
   document.querySelectorAll('#ideas .idea-row').forEach(r=>{ const inp = r.querySelector('input[type=text]'); if(inp) ideas.push(inp.value); });
   const cl=[];
   document.querySelectorAll('#checklist .cl-row').forEach(r=>{ const label = r.querySelector('.cl-label').textContent; const minEl = r.querySelector('.clMin'); const subEl = r.querySelector('.cl-sub'); cl.push({ label: label, done: r.querySelector('input[type=checkbox]').checked, min: minEl ? minEl.value : '', hasMin: !!minEl, sub: subEl ? subEl.textContent : '' }); });
+  
+  let jalali = getJalaliDate(currentDate);
+
   return{
-    mip:document.getElementById('mip').value, mipDone:document.getElementById('mipDone').checked, energy:currentEnergy, energyReason:document.getElementById('energyReason').value,
+    date_miladi: fmtDate(currentDate),
+    date_shamsi: jalali.text,
+    date_stamp: jalali.stamp,
+    mip: document.getElementById('mip').value, 
+    mipDone: document.getElementById('mipDone').checked, 
+    energy: currentEnergy, 
+    energyReason: document.getElementById('energyReason').value,
     goals,t3,t3c,t2,t2c,t1,t1c,tb_list,ideas,cl,
-    rev1:document.getElementById('rev1').value, rev2:document.getElementById('rev2').value, rev3:document.getElementById('rev3').value, rev4:document.getElementById('rev4').value,
-    mipTomorrow:document.getElementById('mipTomorrow').value, star:currentStar
+    rev1: document.getElementById('rev1').value, 
+    rev2: document.getElementById('rev2').value, 
+    rev3: document.getElementById('rev3').value, 
+    rev4: document.getElementById('rev4').value,
+    mipTomorrow: document.getElementById('mipTomorrow').value, 
+    star: currentStar
   };
 }
 
@@ -848,38 +861,103 @@ function applyData(d){
 
 function saveDay() { const modal = document.getElementById('confirmModal'); modal.classList.add('active'); }
 
-// منطق ارسال خودکار داده‌ها به وب‌هوک n8n شما
+// ساخت داخلی ساختار PDF بدون دانلود آن برای الحاق به ریکوئست n8n
+async function generatePDFBlob() {
+  expandTBForExport();
+  window.scrollTo(0,0);
+  await new Promise(r=>setTimeout(r,60));
+  const canvas = await html2canvas(document.body,{
+    scale: 2,
+    useCORS: true,
+    windowWidth: document.documentElement.scrollWidth,
+    windowHeight: document.documentElement.scrollHeight,
+    scrollX: 0, scrollY: 0
+  });
+  collapseTBAfterExport();
+  const img = canvas.toDataURL('image/png');
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF('p', 'mm', 'a4');
+  const pageWidth = 210;
+  const pageHeight = 297;
+  const imgHeight = (canvas.height * pageWidth) / canvas.width;
+  let heightLeft = imgHeight;
+  let position = 0;
+  
+  pdf.addImage(img, 'PNG', 0, position, pageWidth, imgHeight);
+  heightLeft -= pageHeight;
+  while(heightLeft > 0){
+    position = heightLeft - imgHeight;
+    pdf.addPage();
+    pdf.addImage(img, 'PNG', 0, position, pageWidth, imgHeight);
+    heightLeft -= pageHeight;
+  }
+  return pdf.output('blob');
+}
+
+// ارسال کل داده‌ها (متن‌ها، فیلدهای خالی، چک‌باکس‌ها، تاریخ‌ها و فایل PDF) به n8n
 async function handleConfirmSave(isConfirmed) { 
   const modal = document.getElementById('confirmModal'); 
   modal.classList.remove('active'); 
   if (isConfirmed) { 
     saveDaySilent(); 
     const key = fmtDate(currentDate); 
-    
-    const payload = {
-      date: key,
-      data: gatherData()
-    };
+    const allData = gatherData();
 
-    showToast('در حال ارسال داده‌ها به گوگل شیت...');
+    showToast('در حال ساخت فایل PDF و بسته‌بندی کل داده‌ها...');
 
     try {
+      // ۱. تولید فایل PDF به صورت Blob اختصاصی در پشت صحنه
+      const pdfBlob = await generatePDFBlob();
+      
+      // ۲. بسته‌بندی داده‌ها به صورت FormData (پشتیبانی کامل از ساختارهای ترکیبی متن + فایل باینری)
+      const formData = new FormData();
+      
+      // افزودن فیلدهای پایه و ساختاری اصلی صفحه
+      formData.append("date_miladi", allData.date_miladi);
+      formData.append("date_shamsi", allData.date_shamsi);
+      formData.append("date_stamp", allData.date_stamp);
+      formData.append("mip", allData.mip);
+      formData.append("mipDone", allData.mipDone);
+      formData.append("energy", allData.energy);
+      formData.append("energyReason", allData.energyReason);
+      formData.append("rev1", allData.rev1);
+      formData.append("rev2", allData.rev2);
+      formData.append("rev3", allData.rev3);
+      formData.append("rev4", allData.rev4);
+      formData.append("mipTomorrow", allData.mipTomorrow);
+      formData.append("star", allData.star);
+      
+      // تبدیل آرایه‌ها و لیست‌های پیچیده کارهای انجام شده به فیلدهای ساختارمند stringify
+      formData.append("goals", JSON.stringify(allData.goals));
+      formData.append("tasks_high_priority", JSON.stringify(allData.t3));
+      formData.append("tasks_high_priority_status", JSON.stringify(allData.t3c));
+      formData.append("tasks_medium_priority", JSON.stringify(allData.t2));
+      formData.append("tasks_medium_priority_status", JSON.stringify(allData.t2c));
+      formData.append("tasks_personal", JSON.stringify(allData.t1));
+      formData.append("tasks_personal_status", JSON.stringify(allData.t1c));
+      formData.append("time_blocking", JSON.stringify(allData.tb_list));
+      formData.append("parkED_ideas", JSON.stringify(allData.ideas));
+      formData.append("daily_checklist", JSON.stringify(allData.cl));
+      
+      // الحاق خودکار فایل باینری PDF تولید شده به n8n
+      formData.append("file_pdf", pdfBlob, `AEV-Planner-${key}.pdf`);
+
+      showToast('در حال ارسال نهایی به سرور n8n...');
+
+      // ارسال مستقیم داده به صورت Multipart/form-data به n8n
       const response = await fetch(N8N_WEBHOOK_URL, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(payload)
+        body: formData
       });
 
       if(response.ok) {
-        showToast('اطلاعات روز ' + key + ' با موفقیت به گوگل شیت ارسال شد ✓');
+        showToast('کل داده‌ها + فایل PDF با موفقیت به n8n ارسال شد ✓');
       } else {
         showToast('خطا در ارسال به n8n (کد خطا: ' + response.status + ')');
       }
     } catch (err) {
       console.error(err);
-      showToast('خطا در ارتباط با وب‌هوک n8n. ذخیره محلی انجام شد.');
+      showToast('خطا در ارتباط یا پردازش سرور n8n. ذخیره محلی انجام شد.');
     }
 
   } else { 
@@ -915,7 +993,7 @@ function expandTBForExport(){ const wrap=document.getElementById('tbWrap'); if(w
 function collapseTBAfterExport(){ const wrap=document.getElementById('tbWrap'); if(wrap) wrap.classList.remove('export-expanded'); }
 
 async function exportPNG(){ saveDaySilent(); expandTBForExport(); window.scrollTo(0,0); await new Promise(r=>setTimeout(r,50)); const canvas=await html2canvas(document.body,{ scale:2, useCORS:true, windowWidth:document.documentElement.scrollWidth, windowHeight:document.documentElement.scrollHeight, scrollX:0, scrollY:0 }); collapseTBAfterExport(); const link=document.createElement('a'); link.href=canvas.toDataURL('image/png'); link.download='AEV-Planner-'+fmtDate(currentDate)+'.png'; link.click(); showToast('PNG ذخیره شد ✓'); }
-async function exportPDF(){ saveDaySilent(); expandTBForExport(); window.scrollTo(0,0); await new Promise(r=>setTimeout(r,50)); const canvas=await html2canvas(document.body,{ scale:2, useCORS:true, windowWidth:document.documentElement.scrollWidth, windowHeight:document.documentElement.scrollHeight, scrollX:0, scrollY:0 }); collapseTBAfterExport(); const img=canvas.toDataURL('image/png'); const {jsPDF}=window.jspdf; const pdf=new jsPDF('p','mm','a4'); const pageWidth=210; const pageHeight=297; const imgHeight=(canvas.height*pageWidth)/canvas.width; let heightLeft=imgHeight; let position=0; pdf.addImage(img,'PNG',0,position,pageWidth,imgHeight); heightLeft-=pageHeight; while(heightLeft>0){ position=heightLeft-imgHeight; pdf.addPage(); pdf.addImage(img,'PNG',0,position,pageWidth,imgHeight); heightLeft-=pageHeight; } pdf.save('AEV-Planner-'+fmtDate(currentDate)+'.pdf'); showToast('PDF ذخیره شد ✓'); }
+async function exportPDF(){ saveDaySilent(); const pdfBlob = await generatePDFBlob(); const url = URL.createObjectURL(pdfBlob); const a = document.createElement('a'); a.href = url; a.download = 'AEV-Planner-' + fmtDate(currentDate) + '.pdf'; a.click(); URL.revokeObjectURL(url); showToast('PDF ذخیره شد ✓'); }
 
 function exportHTML(){
   saveDaySilent();
