@@ -1065,6 +1065,132 @@ try{
 
 applyData(savedDays[fmtDate(currentDate)]);
 renderDaysNav();
+  function expandTBForExport() {
+  const wrp = document.getElementById('tbWrapper');
+  if(wrp) wrp.classList.add('export-expanded');
+}
+
+function collapseTBAfterExport() {
+  const wrp = document.getElementById('tbWrapper');
+  if(wrp) wrp.classList.remove('export-expanded');
+}
+
+// دانلود PNG کل صفحه شامل تمام ساعات بدون اسکرول
+async function exportPNG(){
+  saveDaySilent();
+  expandTBForExport();
+  window.scrollTo(0,0);
+  await new Promise(r=>setTimeout(r,100));
+  const canvas=await html2canvas(document.body,{
+    scale:2,
+    useCORS:true,
+    windowWidth:document.documentElement.scrollWidth,
+    windowHeight:document.documentElement.scrollHeight,
+    scrollX:0,
+    scrollY:0
+  });
+  collapseTBAfterExport();
+  const link=document.createElement('a');
+  link.href=canvas.toDataURL('image/png');
+  link.download='AEV-Planner-'+fmtDate(currentDate)+'.png';
+  link.click();
+  showToast('فایل PNG دانلود شد ✓');
+}
+
+// دانلود PDF کل صفحه شامل تمام ساعات بدون اسکرول
+async function exportPDF(){
+  saveDaySilent();
+  expandTBForExport();
+  window.scrollTo(0,0);
+  await new Promise(r=>setTimeout(r,100));
+  const canvas=await html2canvas(document.body,{
+    scale:2,
+    useCORS:true,
+    windowWidth:document.documentElement.scrollWidth,
+    windowHeight:document.documentElement.scrollHeight,
+    scrollX:0,
+    scrollY:0
+  });
+  collapseTBAfterExport();
+  const img=canvas.toDataURL('image/png');
+  const {jsPDF}=window.jspdf;
+  const pdf=new jsPDF('p','mm','a4');
+  const pageWidth=210;
+  const pageHeight=297;
+  const imgHeight=(canvas.height*pageWidth)/canvas.width;
+  let heightLeft=imgHeight;
+  let position=0;
+  pdf.addImage(img,'PNG',0,position,pageWidth,imgHeight);
+  heightLeft-=pageHeight;
+  while(heightLeft>0){
+    position=heightLeft-imgHeight;
+    pdf.addPage();
+    pdf.addImage(img,'PNG',0,position,pageWidth,imgHeight);
+    heightLeft-=pageHeight;
+  }
+  pdf.save('AEV-Planner-'+fmtDate(currentDate)+'.pdf');
+  showToast('فایل PDF دانلود شد ✓');
+}
+
+// دانلود فایل HTML کپسوله شده، غیرفعال و صِرفاً نمایشی برای آرشیو کاملاً امن
+function exportHTML() {
+  saveDaySilent();
+  const currentData = gatherData();
+  let docString = document.documentElement.outerHTML;
+  
+  const injectScript = `
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      // اعمال مود پیش‌نمایش قفل شده روی تگ html
+      document.documentElement.classList.add('html-preview-mode');
+      document.body.classList.add('html-preview-mode');
+      
+      // پاکسازی و غیرفعال‌سازی جامع تمامی عناصر فرم و رویدادهای کلیک
+      document.querySelectorAll('input, textarea, select, button').forEach(el => {
+        el.setAttribute('readonly', true);
+        el.setAttribute('disabled', true);
+        el.disabled = true;
+        if(el.getAttribute('type') === 'checkbox') {
+          el.setAttribute('onclick', 'return false;');
+          el.addEventListener('click', function(e) { e.preventDefault(); return false; });
+        }
+      });
+
+      document.querySelectorAll('.star').forEach(el => {
+        el.removeAttribute('onclick');
+        el.style.pointerEvents = 'none';
+      });
+
+      document.querySelectorAll('.energy-opt').forEach(el => {
+        el.removeAttribute('onclick');
+        el.style.pointerEvents = 'none';
+      });
+      
+      // بارگذاری نهایی آخرین وضعیت متغیرها روی دام استاتیک نسخه بک‌آپ
+      const staticData = \${JSON.stringify(currentData)};
+      if (typeof applyData === 'function') { 
+        applyData(staticData); 
+      }
+      
+      setTimeout(() => {
+        document.querySelectorAll('input, textarea').forEach(el => {
+          el.setAttribute('readonly', true);
+          el.setAttribute('disabled', true);
+        });
+      }, 100);
+    });
+  <\/script>`;
+  
+  docString = docString.replace('</body>', injectScript + '</body>');
+  
+  const blob = new Blob([docString], {type:'text/html;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'AEV-Planner-Archive-' + fmtDate(currentDate) + '.html';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  showToast('نسخه HTML آرشیو دانلود شد ✓');
+}
 </script>
 
 </body>
