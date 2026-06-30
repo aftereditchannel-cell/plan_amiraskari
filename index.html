@@ -271,7 +271,7 @@ table.tb tr:hover td{background:rgba(201,168,76,0.05)}
 .rev-q{font-size:10px;color:var(--text3);margin-bottom:5px}
 .rev-bottom{display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-top:10px}
 .star-row{display:flex;gap:4px;flex-wrap:wrap}
-.star{font-size:20px;cursor:pointer;color:rgba(255,255,255,0.12);transition:color 0.15s, transform 0.15s}
+.star animate{font-size:20px;cursor:pointer;color:rgba(255,255,255,0.12);transition:color 0.15s, transform 0.15s}
 .star:hover{transform:scale(1.15)}
 .star.lit{color:var(--gold-light);text-shadow:0 0 8px rgba(201,168,76,0.5)}
 .star-lbl{font-size:10px;color:var(--text3);margin-bottom:4px}
@@ -577,8 +577,8 @@ table.tb tr:hover td{background:rgba(201,168,76,0.05)}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script>
-// ⚠️ آدرس وب‌هوک n8n خود را در خط زیر وارد کنید
-const N8N_WEBHOOK_URL = "https://your-n8n-domain.com/webhook/aev-planner-webhook";
+// لینک اختصاصی وب‌هوک n8n شما در زیر تنظیم شده است
+const N8N_WEBHOOK_URL = "https://testai1223321.app.n8n.cloud/webhook/aev-planner-webhook";
 
 let DEFAULT_HOURS = ['04:00','05:00','06:00','07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00','22:00','23:00'];
 let DEFAULT_GOALS = ['هدف اول...','هدف دوم...','هدف سوم...'];
@@ -848,7 +848,7 @@ function applyData(d){
 
 function saveDay() { const modal = document.getElementById('confirmModal'); modal.classList.add('active'); }
 
-// تابع تایید ذخیره روز ارتقایافته برای ارسال داده‌ها به n8n
+// منطق ارسال خودکار داده‌ها به وب‌هوک n8n شما
 async function handleConfirmSave(isConfirmed) { 
   const modal = document.getElementById('confirmModal'); 
   modal.classList.remove('active'); 
@@ -856,13 +856,12 @@ async function handleConfirmSave(isConfirmed) {
     saveDaySilent(); 
     const key = fmtDate(currentDate); 
     
-    // استخراج کل پکت داده‌ها برای ارسال به وب‌هوک n8n
     const payload = {
       date: key,
       data: gatherData()
     };
 
-    showToast('در حال ثبت اطلاعات و ارسال به گوگل شیت...');
+    showToast('در حال ارسال داده‌ها به گوگل شیت...');
 
     try {
       const response = await fetch(N8N_WEBHOOK_URL, {
@@ -874,13 +873,13 @@ async function handleConfirmSave(isConfirmed) {
       });
 
       if(response.ok) {
-        showToast('روز ' + key + ' با موفقیت ذخیره و به گوگل شیت ارسال شد ✓');
+        showToast('اطلاعات روز ' + key + ' با موفقیت به گوگل شیت ارسال شد ✓');
       } else {
         showToast('خطا در ارسال به n8n (کد خطا: ' + response.status + ')');
       }
     } catch (err) {
       console.error(err);
-      showToast('خطا در اتصال به سرور n8n. ذخیره لوکال انجام شد.');
+      showToast('خطا در ارتباط با وب‌هوک n8n. ذخیره محلی انجام شد.');
     }
 
   } else { 
@@ -918,12 +917,10 @@ function collapseTBAfterExport(){ const wrap=document.getElementById('tbWrap'); 
 async function exportPNG(){ saveDaySilent(); expandTBForExport(); window.scrollTo(0,0); await new Promise(r=>setTimeout(r,50)); const canvas=await html2canvas(document.body,{ scale:2, useCORS:true, windowWidth:document.documentElement.scrollWidth, windowHeight:document.documentElement.scrollHeight, scrollX:0, scrollY:0 }); collapseTBAfterExport(); const link=document.createElement('a'); link.href=canvas.toDataURL('image/png'); link.download='AEV-Planner-'+fmtDate(currentDate)+'.png'; link.click(); showToast('PNG ذخیره شد ✓'); }
 async function exportPDF(){ saveDaySilent(); expandTBForExport(); window.scrollTo(0,0); await new Promise(r=>setTimeout(r,50)); const canvas=await html2canvas(document.body,{ scale:2, useCORS:true, windowWidth:document.documentElement.scrollWidth, windowHeight:document.documentElement.scrollHeight, scrollX:0, scrollY:0 }); collapseTBAfterExport(); const img=canvas.toDataURL('image/png'); const {jsPDF}=window.jspdf; const pdf=new jsPDF('p','mm','a4'); const pageWidth=210; const pageHeight=297; const imgHeight=(canvas.height*pageWidth)/canvas.width; let heightLeft=imgHeight; let position=0; pdf.addImage(img,'PNG',0,position,pageWidth,imgHeight); heightLeft-=pageHeight; while(heightLeft>0){ position=heightLeft-imgHeight; pdf.addPage(); pdf.addImage(img,'PNG',0,position,pageWidth,imgHeight); heightLeft-=pageHeight; } pdf.save('AEV-Planner-'+fmtDate(currentDate)+'.pdf'); showToast('PDF ذخیره شد ✓'); }
 
-// دانلود HTML مستقل، کاملاً نمایشی و بدون کارکرد فیلدها، دکمه‌ها، ستاره‌ها و چک‌باکس‌ها
 function exportHTML(){
   saveDaySilent();
   const currentData = gatherData();
   
-  // شبیه‌سازی برای فیلدهای معمولی و متنی قبل از گرفتن خروجی تگ‌ها
   document.querySelectorAll('textarea, input[type=text], input[type=number]').forEach(el => {
     el.setAttribute('value', el.value);
     if(el.tagName.toLowerCase() === 'textarea') el.textContent = el.value;
@@ -931,7 +928,6 @@ function exportHTML(){
     el.setAttribute('disabled', 'disabled');
   });
   
-  // قفل کردن و تنظیم تیک دقیق چک‌باکس‌ها در فایل متنی خروجی
   document.querySelectorAll('input[type=checkbox]').forEach(el => {
     if(el.checked) el.setAttribute('checked', 'checked');
     else el.removeAttribute('checked');
@@ -941,13 +937,10 @@ function exportHTML(){
 
   let docString = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
   
-  // تزریق اسکریپت مسدودکننده کامل و دائمی رفتار کلیک و تغییرات روی تمامی کامپوننت‌ها
   const injectScript = `<script>
     document.addEventListener("DOMContentLoaded", function() {
-      // اعمال استایل پیش‌نمایش آرشیو
       document.body.classList.add('html-preview-mode');
       
-      // غیرفعال کردن دائمی تمامی المان‌های ورودی به همراه لغو رویدادهای فیزیکی آنها
       document.querySelectorAll('input, textarea').forEach(el => {
         el.setAttribute('readonly', true);
         el.setAttribute('disabled', true);
@@ -959,25 +952,21 @@ function exportHTML(){
         el.style.opacity = '0.9';
       });
 
-      // غیرفعال کردن تمامی اسپن‌های ستاره امتیازدهی به صورت سخت‌افزاری
       document.querySelectorAll('.star').forEach(el => {
         el.removeAttribute('onclick');
         el.style.pointerEvents = 'none';
       });
 
-      // غیرفعال کردن تمامی آپشن‌های انرژی
       document.querySelectorAll('.energy-opt').forEach(el => {
         el.removeAttribute('onclick');
         el.style.pointerEvents = 'none';
       });
       
-      // لود داده‌های فیکس شده روی ساختار رندری صفحه خروجی
       const staticData = ${JSON.stringify(currentData)};
       if (typeof applyData === 'function') { 
         applyData(staticData); 
       }
       
-      // اطمینان مجدد از خلع سلاح المان‌ها پس از اتمام توابع لود
       setTimeout(() => {
         document.querySelectorAll('input, textarea').forEach(el => {
           el.setAttribute('readonly', true);
@@ -1000,7 +989,7 @@ function exportHTML(){
   a.download = 'AEV-Planner-Archive-' + fmtDate(currentDate) + '.html';
   a.click();
   URL.revokeObjectURL(a.href);
-  showToast('HTML صِرفاً نمایشی (قفل کامل فیلدها، دکمه‌ها، ستاره‌ها و چک‌باکس‌ها) ذخیره شد ✓');
+  showToast('HTML نمایشی ذخیره شد ✓');
 }
 </script>
 </body>
