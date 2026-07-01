@@ -2,7 +2,6 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AEV PLANNER</title>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
@@ -32,7 +31,13 @@ body{
   background-attachment:fixed;
 }
 img,canvas,svg{max-width:100%}
-
+@media(max-width:768px){
+.app{padding:10px}
+.topbar{flex-direction:column;align-items:stretch}
+.date-pill,.save-btn,.edit-toggle-btn{width:100%;justify-content:center}
+.card{padding:10px}
+.tb-wrap{max-height:none;overflow:visible}
+}
 .app{max-width:960px;margin:0 auto;padding:16px}
 
 .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;gap:12px;flex-wrap:wrap}
@@ -95,6 +100,7 @@ img,canvas,svg{max-width:100%}
 
 .grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:12px}
 .grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:12px}
+@media(max-width:680px){.grid3,.grid2{grid-template-columns:1fr}}
 
 .card{
   background:var(--glass-bg);
@@ -231,7 +237,7 @@ input[type=checkbox]{width:15px;height:15px;accent-color:var(--gold);cursor:poin
 .task-row{display:flex;align-items:center;gap:7px;margin-bottom:5px;transition: transform 0.2s ease}
 .task-num{font-size:10px;color:var(--text3);min-width:12px}
 
-.tb-wrap{max-height:340px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.tb-wrap{max-height:340px;overflow-y:auto}
 .tb-wrap::-webkit-scrollbar{width:3px}
 .tb-wrap::-webkit-scrollbar-track{background:transparent}
 .tb-wrap::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
@@ -259,10 +265,11 @@ table.tb tr:hover td{background:rgba(201,168,76,0.05)}
 .cl-min-lbl{font-size:10px;color:var(--text3)}
 
 .rev-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:12px}
+@media(max-width:500px){.rev-grid{grid-template-columns:1fr}}
 .rev-q{font-size:10px;color:var(--text3);margin-bottom:5px}
 .rev-bottom{display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-top:10px}
 .star-row{display:flex;gap:4px;flex-wrap:wrap}
-.star{font-size:20px;cursor:pointer;color:rgba(255,255,255,0.12);transition:color 0.15s, transform 0.15s}
+.star animate{font-size:20px;cursor:pointer;color:rgba(255,255,255,0.12);transition:color 0.15s, transform 0.15s}
 .star:hover{transform:scale(1.15)}
 .star.lit{color:var(--gold-light);text-shadow:0 0 8px rgba(201,168,76,0.5)}
 .star-lbl{font-size:10px;color:var(--text3);margin-bottom:4px}
@@ -340,64 +347,6 @@ table.tb tr:hover td{background:rgba(201,168,76,0.05)}
 .html-preview-mode .energy-opt {
   pointer-events: none !important;
   cursor: default !important;
-}
-
-/* 📱 بهینه‌سازی‌های فوق‌العاده سبک و پرسرعت مخصوص موبایل */
-@media(max-width:768px){
-  body {
-    background: #0f0f12;
-  }
-  .app{padding:10px}
-  .topbar{flex-direction:column;align-items:stretch}
-  .date-pill,.save-btn,.edit-toggle-btn{width:100%;justify-content:center}
-  
-  .card, .date-pill, .edit-toggle-btn, .day-chip, textarea, input[type=text], .mip-banner, .compass-note, .btn-sec {
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-    box-shadow: none !important;
-    transition: none !important;
-  }
-  
-  .card {
-    background: #1c1c1e;
-    border-color: rgba(255,255,255,0.05);
-    padding: 12px;
-  }
-  .card:hover {
-    box-shadow: none !important;
-    border-color: rgba(255,255,255,0.05) !important;
-  }
-  .card::before, .card::after {
-    display: none !important;
-  }
-  
-  .date-pill, .edit-toggle-btn, .day-chip, .btn-sec {
-    background: #252527 !important;
-  }
-  
-  textarea, input[type=text], input[type=number] {
-    background: #2e2e30 !important;
-  }
-  
-  .grid3, .grid2, .rev-grid {
-    grid-template-columns: 1fr !important;
-    gap: 10px;
-  }
-  .tb-wrap {
-    max-height: none;
-    overflow: visible;
-  }
-  
-  button, .energy-opt, .star {
-    transform: none !important;
-    transition: none !important;
-  }
-  button:hover, .energy-opt:hover, .star:hover {
-    transform: none !important;
-  }
-  .goal-row, .task-row, .idea-row, .cl-row {
-    transition: none !important;
-  }
 }
 </style>
 </head>
@@ -623,7 +572,7 @@ table.tb tr:hover td{background:rgba(201,168,76,0.05)}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script>
-// وب‌هوک بهینه‌شده n8n
+// آدرس وب‌هوک اصلی برای ثبت و دریافت اطلاعات دوطرفه از n8n
 const N8N_WEBHOOK_URL = "https://testai1223321.app.n8n.cloud/webhook/aev-planner-webhook";
 
 let DEFAULT_HOURS = ['04:00','05:00','06:00','07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00','22:00','23:00'];
@@ -715,15 +664,20 @@ function moveRow(btn, direction) {
   const row = btn.closest('.goal-row, .task-row, .idea-row, .cl-row, tr');
   if (!row) return;
   if (direction === 'up' && row.previousElementSibling) {
-    row.parentNode.insertBefore(row, row.previousElementSibling); updateProgress();
+    row.style.transform = 'translateY(-10px)';
+    setTimeout(() => { row.parentNode.insertBefore(row, row.previousElementSibling); row.style.transform = 'none'; updateProgress(); }, 150);
   } else if (direction === 'down' && row.nextElementSibling) {
-    row.parentNode.insertBefore(row.nextElementSibling, row); updateProgress();
+    row.style.transform = 'translateY(10px)';
+    setTimeout(() => { row.parentNode.insertBefore(row.nextElementSibling, row); row.style.transform = 'none'; updateProgress(); }, 150);
   }
 }
 
 function deleteRow(btn) {
   const row = btn.closest('.goal-row, .task-row, .idea-row, .cl-row, tr');
-  if(row) { row.remove(); updateProgress(); }
+  if(row) {
+    row.style.opacity = '0'; row.style.transform = 'scale(0.9)';
+    setTimeout(() => { row.remove(); updateProgress(); }, 200);
+  }
 }
 
 function duplicateRow(btn, type) {
@@ -767,7 +721,7 @@ function addChecklistItem(label = 'آیتم جدید', min = '', checked = false
   const container = document.getElementById('checklist');
   const div = document.createElement('div');
   div.className = 'cl-row';
-  div.innerHTML = `<input type="checkbox" class="taskCheck" ${checked ? 'checked' : ''}><i class="ti ${icon}" aria-hidden="true"></i><span class="cl-label" ondblclick="handleDoubleClickRename(this)">${label}</span>${hasMin ? `<input type="number" class="clMin" min="0" max="999" placeholder="0" value="${min}"><span class="cl-min-lbl">دقیقه</span>` : `<span class="cl-sub">${sub}</span>`}<div class="edit-ctrls"><button class="ctrl-btn" onclick="moveRow(this, 'up')"><i class="ti ti-arrow-up"></i></button><button class="ctrl-btn" onclick="moveRow(this, 'down')"><i class="ti ti-arrow-down"></i></button><button class="ctrl-btn" onclick="duplicateRow(this, 'checklist')"><i class="ti ti-copy"></i></button><button class="ctrl-btn btn-del" onclick="deleteRow(this)"><i class="ti ti-trash"></i></button></div>`;
+  div.innerHTML = `<input type="checkbox" class="taskCheck" ${checked ? 'checked' : ''}><i class="ti ${icon}" aria-hidden="true"></i><span class="cl-label" ondblclick="handleDoubleClickRename(this)" title="برای تغییر نام دابل کلیک کنید">${label}</span>${hasMin ? `<input type="number" class="clMin" min="0" max="999" placeholder="0" value="${min}"><span class="cl-min-lbl">دقیقه</span>` : `<span class="cl-sub">${sub}</span>`}<div class="edit-ctrls"><button class="ctrl-btn" onclick="moveRow(this, 'up')"><i class="ti ti-arrow-up"></i></button><button class="ctrl-btn" onclick="moveRow(this, 'down')"><i class="ti ti-arrow-down"></i></button><button class="ctrl-btn" onclick="duplicateRow(this, 'checklist')"><i class="ti ti-copy"></i></button><button class="ctrl-btn btn-del" onclick="deleteRow(this)"><i class="ti ti-trash"></i></button></div>`;
   container.appendChild(div);
   updateProgress();
 }
@@ -775,7 +729,7 @@ function addChecklistItem(label = 'آیتم جدید', min = '', checked = false
 function addScheduleRow(hour = '00:00', text = '') {
   const tb = document.getElementById('tbBody');
   const tr = document.createElement('tr');
-  tr.innerHTML = `<td><div class="hour-cell-inner"><span class="hour-display" ondblclick="handleDoubleClickRename(this)">${hour}</span><div class="edit-ctrls"><button class="ctrl-btn" onclick="moveRow(this, 'up')"><i class="ti ti-arrow-up"></i></button><button class="ctrl-btn" onclick="moveRow(this, 'down')"><i class="ti ti-arrow-down"></i></button></div></div></td><td><div style="display:flex; align-items:center; gap:8px;"><input type="text" class="sched-task-input" placeholder="—" value="${text}" style="flex:1"><div class="edit-ctrls"><button class="ctrl-btn btn-del" onclick="deleteRow(this)"><i class="ti ti-trash"></i></button></div></div></td>`;
+  tr.innerHTML = `<td><div class="hour-cell-inner"><span class="hour-display" ondblclick="handleDoubleClickRename(this)" title="تغییر ساعت">${hour}</span><div class="edit-ctrls"><button class="ctrl-btn" onclick="moveRow(this, 'up')"><i class="ti ti-arrow-up"></i></button><button class="ctrl-btn" onclick="moveRow(this, 'down')"><i class="ti ti-arrow-down"></i></button></div></div></td><td><div style="display:flex; align-items:center; gap:8px;"><input type="text" class="sched-task-input" placeholder="—" value="${text}" style="flex:1"><div class="edit-ctrls"><button class="ctrl-btn btn-del" onclick="deleteRow(this)"><i class="ti ti-trash"></i></button></div></div></td>`;
   tb.appendChild(tr);
 }
 
@@ -929,13 +883,12 @@ async function handleConfirmSave(isConfirmed) {
     const currentDayData = gatherData();
     
     const payload = {
-      action: "save",
       date: key,
       raw_json_string: JSON.stringify(currentDayData),
       data: currentDayData
     };
 
-    showToast('در حال همگام‌سازی با گوگل شیت...');
+    showToast('در حال همگام‌سازی و بروزرسانی جدول گوگل شیت...');
 
     try {
       const response = await fetch(N8N_WEBHOOK_URL, {
@@ -945,12 +898,13 @@ async function handleConfirmSave(isConfirmed) {
       });
 
       if(response.ok) {
-        showToast('اطلاعات تاریخ ' + key + ' با موفقیت آپدیت شد ✓');
+        showToast('تغییرات تاریخ شمسی ' + key + ' با موفقیت آپدیت شد ✓');
       } else {
-        showToast('خطا در ذخیره‌سازی ابری. ذخیره محلی انجام شد.');
+        showToast('خطا در ارسال به n8n (کد خطا: ' + response.status + ')');
       }
     } catch (err) {
-      showToast('خطای شبکه. اطلاعات فقط به صورت لوکال ذخیره شد.');
+      console.error(err);
+      showToast('خطا در ارتباط با سرور. تغییرات به صورت محلی فیکس شد.');
     }
   } else { 
     showToast('ذخیره‌سازی لغو شد'); 
@@ -959,26 +913,22 @@ async function handleConfirmSave(isConfirmed) {
 
 function saveDaySilent() { const key = fmtDate(); savedDays[key] = gatherData(); try{localStorage.setItem('aevPlannerPro_v2', JSON.stringify(savedDays));}catch(e){} renderDaysNav(); }
 
-// ⚡ متد فراخوانی ابری بازنویسی‌شده با ساختار کاملاً امن و سازگار با شبکه موبایل
+// ⚡ تابع هوشمند برای فراخوانی بلادرنگ دیتا از گوگل شیت هنگام لود یا تغییر روز
 async function fetchDayDataFromCloud(targetDateKey) {
-  clearDayUI(); // پاکسازی فوری صفحه برای جلوگیری از اختلال اطلاعاتی دسکتاپ و موبایل
-  showToast('در حال لود آنلاین دیتای گوگل شیت...');
-  
+  showToast('در حال چک کردن ابزار ابر گوگل شیت...');
   try {
-    const response = await fetch(N8N_WEBHOOK_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "fetch", date: targetDateKey })
+    const response = await fetch(`${N8N_WEBHOOK_URL}?date=${targetDateKey}`, {
+      method: "GET"
     });
-    
     if (response.ok) {
       const cloudResult = await response.json();
+      // اگر رکورد متناظری در شیت پیدا شد و فیلد خام وجود داشت
       if (cloudResult && cloudResult.raw_json_string) {
         const parsedCloudData = JSON.parse(cloudResult.raw_json_string);
         savedDays[targetDateKey] = parsedCloudData;
         localStorage.setItem('aevPlannerPro_v2', JSON.stringify(savedDays));
         applyData(parsedCloudData);
-        showToast(`اطلاعات تاریخ ${targetDateKey} از ابر لود شد ✓`);
+        showToast(`دیتای تاریخ ${targetDateKey} زنده از گوگل شیت لود شد ✓`);
         return;
       }
     }
@@ -986,7 +936,7 @@ async function fetchDayDataFromCloud(targetDateKey) {
     console.log("خطا در حالت آفلاین یا فراخوانی ابری:", err);
   }
   
-  // لودبک آفلاین در صورت عدم ارتباط یا خالی بودن شیت
+  // اگر ابری نبود از لوکال لود کند
   if(savedDays[targetDateKey]) {
     applyData(savedDays[targetDateKey]);
   } else {
@@ -1009,6 +959,7 @@ function changeDay(delta){
   baseAnchorDate.setDate(baseAnchorDate.getDate() + delta); 
   const key = fmtDate();
   document.getElementById('dateDisplay').textContent = faDate(); 
+  clearDayUI(); 
   fetchDayDataFromCloud(key);
   renderDaysNav(); 
 }
@@ -1050,6 +1001,7 @@ function goToDay(key){
   
   baseAnchorDate = new Date(g_y, g_m - 1, g_d);
   document.getElementById('dateDisplay').textContent = faDate(); 
+  clearDayUI(); 
   fetchDayDataFromCloud(key);
   renderDaysNav(); 
 }
@@ -1069,6 +1021,7 @@ function showToast(msg){ const t=document.getElementById('toastBox'); t.textCont
 
 document.getElementById('dateDisplay').textContent=faDate();
 
+// مقداردهی اولیه سیستم
 try{ 
   const saved=localStorage.getItem('aevPlannerPro_v2'); 
   if(saved) savedDays=JSON.parse(saved); 
@@ -1099,12 +1052,22 @@ document.getElementById('jsonFile').addEventListener('change',function(e){
   reader.onload=function(){ 
     try{ 
       const parsedData = JSON.parse(reader.result);
+      // مدیریت و یکی‌سازی اطلاعات آبجکت لود شده با دیتای فعلی
       savedDays = Object.assign({}, savedDays, parsedData);
       localStorage.setItem('aevPlannerPro_v2', JSON.stringify(savedDays)); 
+      
       const key=fmtDate(); 
-      if(savedDays[key]){ applyData(savedDays[key]); } else { const lastKey = Object.keys(savedDays).pop(); if(lastKey) goToDay(lastKey); }
+      if(savedDays[key]){ 
+        applyData(savedDays[key]); 
+      } else {
+        const lastKey = Object.keys(savedDays).sort((a,b) => {
+          let pa = a.split('-').map(Number), pb = b.split('-').map(Number);
+          return (pa[0] - pb[0]) || (pa[1] - pb[1]) || (pa[2] - pb[2]);
+        }).pop();
+        if(lastKey) goToDay(lastKey);
+      }
       renderDaysNav();
-      showToast('فایل JSON با موفقیت بارگذاری شد ✓'); 
+      showToast('فایل JSON با موفقیت بارگذاری، بازسازی و فیلدها کاملاً رندر شدند ✓'); 
     }catch(err){ 
       alert('ساختار فایل JSON معتبر نیست.'); 
     } 
@@ -1131,16 +1094,37 @@ function exportHTML(){
     if(el.checked) el.setAttribute('checked', 'checked');
     else el.removeAttribute('checked');
     el.setAttribute('disabled', 'disabled');
+    el.setAttribute('onclick', 'return false;');
   });
   let docString = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
   const injectScript = `<script>
     document.addEventListener("DOMContentLoaded", function() {
       document.body.classList.add('html-preview-mode');
       document.querySelectorAll('input, textarea').forEach(el => {
-        el.setAttribute('readonly', true); el.setAttribute('disabled', true);
+        el.setAttribute('readonly', true);
+        el.setAttribute('disabled', true);
+        if(el.getAttribute('type') === 'checkbox') {
+          el.setAttribute('onclick', 'return false;');
+          el.addEventListener('click', function(e) { e.preventDefault(); return false; });
+        }
+        el.style.color = 'var(--text)';
+        el.style.opacity = '0.9';
+      });
+      document.querySelectorAll('.star, .energy-opt').forEach(el => {
+        el.removeAttribute('onclick');
+        el.style.pointerEvents = 'none';
       });
       const staticData = ${JSON.stringify(currentData)};
       if (typeof applyData === 'function') { applyData(staticData); }
+      setTimeout(() => {
+        document.querySelectorAll('input, textarea').forEach(el => {
+          el.setAttribute('readonly', true); el.setAttribute('disabled', true);
+          if(el.getAttribute('type') === 'checkbox') el.setAttribute('onclick', 'return false;');
+        });
+        document.querySelectorAll('.star, .energy-opt').forEach(el => {
+          el.style.pointerEvents = 'none'; el.removeAttribute('onclick');
+        });
+      }, 80);
     });
   <\/script>`;
   docString = docString.replace('</body>', injectScript + '</body>');
@@ -1150,7 +1134,7 @@ function exportHTML(){
   a.download = 'AEV-Planner-Archive-' + fmtDate() + '.html';
   a.click();
   URL.revokeObjectURL(a.href);
-  showToast('HTML ذخیره شد ✓');
+  showToast('HTML نمایشی ذخیره شد ✓');
 }
 </script>
 </body>
