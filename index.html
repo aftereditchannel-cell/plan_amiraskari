@@ -66,7 +66,6 @@ img,canvas,svg{max-width:100%}
 }
 .save-btn:hover{transform:translateY(-1px);box-shadow:0 10px 26px rgba(201,168,76,0.45), inset 0 1px 0 rgba(255,255,255,0.5)}
 
-/* استایل دکمه مود ویرایش */
 .edit-toggle-btn {
   background: var(--glass-bg-soft);
   border: 1px solid var(--glass-border);
@@ -175,7 +174,6 @@ input[type=checkbox]{width:15px;height:15px;accent-color:var(--gold);cursor:poin
 .er .e-label{color:var(--red)}
 .e-sub{font-size:10px;color:var(--text3)}
 
-/* کنترل‌های مدیریتی داینامیک */
 .edit-ctrls {
   display: none;
   align-items: center;
@@ -303,7 +301,6 @@ table.tb tr:hover td{background:rgba(201,168,76,0.05)}
 .progress-ring-wrap{display:flex;justify-content:center;margin-bottom:8px}
 .ring-label{font-size:10px;color:var(--text3);text-align:center;margin-top:4px}
 
-/* استایل دیالوگ تأیید اختصاصی */
 .confirm-modal {
   position: fixed; top: 0; left: 0; right: 0; bottom: 0;
   background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
@@ -324,7 +321,6 @@ table.tb tr:hover td{background:rgba(201,168,76,0.05)}
 
 .tb-wrap.export-expanded{max-height:none !important;overflow:visible !important}
 
-/* کلاس مخصوص حالت آرشیو کاملاً قفل، غیرفعال و صِرفاً نمایشی */
 .html-preview-mode, .html-preview-mode body {
   cursor: default !important;
 }
@@ -347,7 +343,6 @@ table.tb tr:hover td{background:rgba(201,168,76,0.05)}
   opacity: 0.9 !important;
   background: rgba(255,255,255,0.02) !important;
 }
-/* قفل کامل تعامل با ستاره‌های امتیازدهی و وضعیت‌های انرژی در نسخه آرشیو */
 .html-preview-mode .star, 
 .html-preview-mode .energy-opt {
   pointer-events: none !important;
@@ -577,7 +572,6 @@ table.tb tr:hover td{background:rgba(201,168,76,0.05)}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script>
-// لینک اختصاصی وب‌هوک n8n شما در زیر تنظیم شده است
 const N8N_WEBHOOK_URL = "https://testai1223321.app.n8n.cloud/webhook/aev-planner-webhook";
 
 let DEFAULT_HOURS = ['04:00','05:00','06:00','07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00','22:00','23:00'];
@@ -734,9 +728,29 @@ function buildTB(){
   DEFAULT_HOURS.forEach(h => addScheduleRow(h, ''));
 }
 
+function loadAnnualGoals() {
+  const goalsCont = document.getElementById('annualGoals');
+  goalsCont.innerHTML = '';
+  let storedGoals = localStorage.getItem('aevPlanner_annualGoals');
+  if (storedGoals) {
+    let goalsArr = JSON.parse(storedGoals);
+    goalsArr.forEach(g => addItem('annualGoals', g));
+  } else {
+    DEFAULT_GOALS.forEach(g => addItem('annualGoals', g));
+  }
+}
+
+function saveAnnualGoals() {
+  const goals = [];
+  document.querySelectorAll('#annualGoals .goal-row').forEach(r => {
+    const inp = r.querySelector('input[type=text]');
+    if(inp) goals.push(inp.value);
+  });
+  localStorage.setItem('aevPlanner_annualGoals', JSON.stringify(goals));
+}
+
 function initDefaultSections() {
-  document.getElementById('annualGoals').innerHTML = '';
-  DEFAULT_GOALS.forEach(g => addItem('annualGoals', g));
+  loadAnnualGoals();
   document.getElementById('tasks3').innerHTML = '';
   DEFAULT_TASKS.forEach(t => addItem('tasks3', t));
   document.getElementById('tasks2').innerHTML = '';
@@ -790,6 +804,7 @@ function updateProgress(){
 document.addEventListener('change',e=>{if(e.target.classList.contains('taskCheck'))updateProgress();});
 
 function gatherData(){
+  saveAnnualGoals(); 
   const goals=[];
   document.querySelectorAll('#annualGoals .goal-row').forEach(r => { const inp = r.querySelector('input[type=text]'); if(inp) goals.push(inp.value); });
   const t3=[],t3c=[];
@@ -819,8 +834,7 @@ function applyData(d){
   if(d.energy) selectEnergy(d.energy); else updateRing('');
   document.getElementById('energyReason').value=d.energyReason||'';
   
-  const goalsCont = document.getElementById('annualGoals'); goalsCont.innerHTML = '';
-  if(d.goals && d.goals.length) { d.goals.forEach(g => addItem('annualGoals', g)); } else { DEFAULT_GOALS.forEach(g => addItem('annualGoals', g)); }
+  loadAnnualGoals();
 
   const t3Cont = document.getElementById('tasks3'); t3Cont.innerHTML = '';
   if(d.t3) { d.t3.forEach((val, i) => { addItem('tasks3', val); const rows = t3Cont.querySelectorAll('.task-row'); if(rows[i]) rows[i].querySelector('input[type=checkbox]').checked = !!d.t3c[i]; }); } else { DEFAULT_TASKS.forEach(t => addItem('tasks3', t)); }
@@ -848,7 +862,6 @@ function applyData(d){
 
 function saveDay() { const modal = document.getElementById('confirmModal'); modal.classList.add('active'); }
 
-// منطق ارسال خودکار داده‌ها به وب‌هوک n8n شما
 async function handleConfirmSave(isConfirmed) { 
   const modal = document.getElementById('confirmModal'); 
   modal.classList.remove('active'); 
@@ -879,7 +892,7 @@ async function handleConfirmSave(isConfirmed) {
       }
     } catch (err) {
       console.error(err);
-      showToast('خطا در ارتباط با وب‌هوک n8n. ذخیره محلی انجام شد.');
+      showToast('خطا در ارتباط با سرور n8n. ذخیره محلی انجام شد.');
     }
 
   } else { 
@@ -909,7 +922,31 @@ renderDaysNav();
 
 function exportJSON(){ saveDaySilent(); const dataStr = JSON.stringify(savedDays,null,2); const blob = new Blob([dataStr], {type:'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'AEV-Planner-' + fmtDate(currentDate) + '.json'; a.click(); URL.revokeObjectURL(a.href); }
 function importJSON(){ document.getElementById('jsonFile').click(); }
-document.getElementById('jsonFile').addEventListener('change',function(e){ const file=e.target.files[0]; if(!file) return; const reader=new FileReader(); reader.onload=function(){ try{ savedDays=JSON.parse(reader.result); localStorage.setItem('aevPlannerPro', JSON.stringify(savedDays)); renderDaysNav(); const key=fmtDate(currentDate); if(savedDays[key]){ applyData(savedDays[key]); } showToast('فایل JSON بارگذاری شد ✓'); }catch(err){ alert('فایل معتبر نیست'); } }; reader.readAsText(file); });
+
+document.getElementById('jsonFile').addEventListener('change',function(e){ 
+  const file=e.target.files[0]; 
+  if(!file) return; 
+  const reader=new FileReader(); 
+  reader.onload=function(){ 
+    try{ 
+      savedDays=JSON.parse(reader.result); 
+      localStorage.setItem('aevPlannerPro', JSON.stringify(savedDays)); 
+      
+      const key=fmtDate(currentDate); 
+      if(savedDays[key]){ 
+        applyData(savedDays[key]); 
+      } else {
+        const lastKey = Object.keys(savedDays).sort().pop();
+        if(lastKey) goToDay(lastKey);
+      }
+      renderDaysNav();
+      showToast('فایل JSON بارگذاری شد و اطلاعات بازنشانی گردید ✓'); 
+    }catch(err){ 
+      alert('فایل JSON معتبر نیست'); 
+    } 
+  }; 
+  reader.readAsText(file); 
+});
 
 function expandTBForExport(){ const wrap=document.getElementById('tbWrap'); if(wrap) wrap.classList.add('export-expanded'); }
 function collapseTBAfterExport(){ const wrap=document.getElementById('tbWrap'); if(wrap) wrap.classList.remove('export-expanded'); }
