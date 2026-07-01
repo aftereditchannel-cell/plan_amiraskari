@@ -572,7 +572,7 @@ table.tb tr:hover td{background:rgba(201,168,76,0.05)}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script>
-// آدرس وب‌هوک اصلی برای ثبت و دریافت اطلاعات دوطرفه از n8n
+// آدرس وب‌هوک اصلی شما در n8n
 const N8N_WEBHOOK_URL = "https://testai1223321.app.n8n.cloud/webhook/aev-planner-webhook";
 
 let DEFAULT_HOURS = ['04:00','05:00','06:00','07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00','22:00','23:00'];
@@ -914,11 +914,10 @@ async function handleConfirmSave(isConfirmed) {
 
 function saveDaySilent() { const key = fmtDate(); savedDays[key] = gatherData(); try{localStorage.setItem('aevPlannerPro_v2', JSON.stringify(savedDays));}catch(e){} renderDaysNav(); }
 
-// ⚡ تابع هوشمند اصلاح شده برای فراخوانی بلادرنگ دیتا از گوگل شیت با متد POST
+// ⚡ تابع هوشمند اصلاح شده برای فراخوانی بلادرنگ دیتا از گوگل شیت با متد POST جهت حذف محدودیت مرورگرها
 async function fetchDayDataFromCloud(targetDateKey) {
   showToast('در حال دریافت اطلاعات زنده از گوگل شیت...');
   try {
-    // ارسال درخواست به وب‌هوک به صورت POST با اکشنِ مشخص جهت هماهنگی با n8n
     const response = await fetch(N8N_WEBHOOK_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -927,7 +926,6 @@ async function fetchDayDataFromCloud(targetDateKey) {
     
     if (response.ok) {
       const cloudResult = await response.json();
-      // اگر نتیجه مستقیم یا در یک آرایه قرار داشت مدیریت شود
       let record = Array.isArray(cloudResult) ? cloudResult[0] : cloudResult;
       
       if (record && record.raw_json_string) {
@@ -943,7 +941,6 @@ async function fetchDayDataFromCloud(targetDateKey) {
     console.log("خطا در ارتباط ابری:", err);
   }
   
-  // لود بک‌آپ محلی در صورت نبود اینترنت یا دیتای ابری
   if(savedDays[targetDateKey]) {
     applyData(savedDays[targetDateKey]);
     showToast(`دیتای محلی تاریخ ${targetDateKey} رندر شد (آفلاین)`);
@@ -1029,7 +1026,6 @@ function showToast(msg){ const t=document.getElementById('toastBox'); t.textCont
 
 document.getElementById('dateDisplay').textContent=faDate();
 
-// مقداردهی اولیه سیستم
 try{ 
   const saved=localStorage.getItem('aevPlannerPro_v2'); 
   if(saved) savedDays=JSON.parse(saved); 
