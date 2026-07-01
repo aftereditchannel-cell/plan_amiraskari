@@ -883,6 +883,7 @@ async function handleConfirmSave(isConfirmed) {
     const currentDayData = gatherData();
     
     const payload = {
+      action: "save",
       date: key,
       raw_json_string: JSON.stringify(currentDayData),
       data: currentDayData
@@ -913,32 +914,39 @@ async function handleConfirmSave(isConfirmed) {
 
 function saveDaySilent() { const key = fmtDate(); savedDays[key] = gatherData(); try{localStorage.setItem('aevPlannerPro_v2', JSON.stringify(savedDays));}catch(e){} renderDaysNav(); }
 
-// ⚡ تابع هوشمند برای فراخوانی بلادرنگ دیتا از گوگل شیت هنگام لود یا تغییر روز
+// ⚡ تابع هوشمند اصلاح شده برای فراخوانی بلادرنگ دیتا از گوگل شیت با متد POST
 async function fetchDayDataFromCloud(targetDateKey) {
-  showToast('در حال چک کردن ابزار ابر گوگل شیت...');
+  showToast('در حال دریافت اطلاعات زنده از گوگل شیت...');
   try {
-    const response = await fetch(`${N8N_WEBHOOK_URL}?date=${targetDateKey}`, {
-      method: "GET"
+    // ارسال درخواست به وب‌هوک به صورت POST با اکشنِ مشخص جهت هماهنگی با n8n
+    const response = await fetch(N8N_WEBHOOK_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "get", date: targetDateKey })
     });
+    
     if (response.ok) {
       const cloudResult = await response.json();
-      // اگر رکورد متناظری در شیت پیدا شد و فیلد خام وجود داشت
-      if (cloudResult && cloudResult.raw_json_string) {
-        const parsedCloudData = JSON.parse(cloudResult.raw_json_string);
+      // اگر نتیجه مستقیم یا در یک آرایه قرار داشت مدیریت شود
+      let record = Array.isArray(cloudResult) ? cloudResult[0] : cloudResult;
+      
+      if (record && record.raw_json_string) {
+        const parsedCloudData = JSON.parse(record.raw_json_string);
         savedDays[targetDateKey] = parsedCloudData;
         localStorage.setItem('aevPlannerPro_v2', JSON.stringify(savedDays));
         applyData(parsedCloudData);
-        showToast(`دیتای تاریخ ${targetDateKey} زنده از گوگل شیت لود شد ✓`);
+        showToast(`دیتای تاریخ ${targetDateKey} با موفقیت از گوگل شیت لود شد ✓`);
         return;
       }
     }
   } catch (err) {
-    console.log("خطا در حالت آفلاین یا فراخوانی ابری:", err);
+    console.log("خطا در ارتباط ابری:", err);
   }
   
-  // اگر ابری نبود از لوکال لود کند
+  // لود بک‌آپ محلی در صورت نبود اینترنت یا دیتای ابری
   if(savedDays[targetDateKey]) {
     applyData(savedDays[targetDateKey]);
+    showToast(`دیتای محلی تاریخ ${targetDateKey} رندر شد (آفلاین)`);
   } else {
     applyData(null);
   }
@@ -1052,7 +1060,6 @@ document.getElementById('jsonFile').addEventListener('change',function(e){
   reader.onload=function(){ 
     try{ 
       const parsedData = JSON.parse(reader.result);
-      // مدیریت و یکی‌سازی اطلاعات آبجکت لود شده با دیتای فعلی
       savedDays = Object.assign({}, savedDays, parsedData);
       localStorage.setItem('aevPlannerPro_v2', JSON.stringify(savedDays)); 
       
