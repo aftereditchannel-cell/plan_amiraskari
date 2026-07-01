@@ -528,10 +528,10 @@ table.tb tr:hover td{background:rgba(201,168,76,0.05)}
       </div>
     </div>
     <div class="rev-grid">
-      <div><div class="rev-q">امروز به کدام هدف سالانه نزدیک شدم؟</div><textarea id="rev1" rows="2" placeholder="..."></textarea></div>
+      <div><div class="rev-q">امروز به کدام هدف سالانه نزدیک شدم？</div><textarea id="rev1" rows="2" placeholder="..."></textarea></div>
       <div><div class="rev-q">مهم‌ترین چیزی که امروز یاد گرفتم:</div><textarea id="rev2" rows="2" placeholder="..."></textarea></div>
-      <div><div class="rev-q">چه چیزی خوب پیش رفت؟</div><textarea id="rev3" rows="2" placeholder="..."></textarea></div>
-      <div><div class="rev-q">چه چیزی را می‌توانم بهتر کنم؟</div><textarea id="rev4" rows="2" placeholder="..."></textarea></div>
+      <div><div class="rev-q">چه چیزی خوب پیش رفت？</div><textarea id="rev3" rows="2" placeholder="..."></textarea></div>
+      <div><div class="rev-q">چه چیزی را می‌توانم بهتر کنم？</div><textarea id="rev4" rows="2" placeholder="..."></textarea></div>
     </div>
     <div class="rev-bottom">
       <div style="flex:1;min-width:200px"><div class="rev-q">MIP فردا:</div><input type="text" id="mipTomorrow" placeholder="مهم‌ترین کار فردا..."></div>
@@ -572,6 +572,7 @@ table.tb tr:hover td{background:rgba(201,168,76,0.05)}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script>
+// آدرس وب‌هوک اصلی برای ثبت و دریافت اطلاعات دوطرفه از n8n
 const N8N_WEBHOOK_URL = "https://testai1223321.app.n8n.cloud/webhook/aev-planner-webhook";
 
 let DEFAULT_HOURS = ['04:00','05:00','06:00','07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00','22:00','23:00'];
@@ -588,7 +589,6 @@ let DEFAULT_CHECKLIST = [
   {label: 'کار روی درآمد', hasMin: true, icon: 'ti-coins', sub: ''}
 ];
 
-// محاسبه مستقل تاریخ شمسی جاری بدون وابستگی به فرمت‌های میلادی
 function calcCurrentJalali(dateObj) {
   const g_y = dateObj.getFullYear(), g_m = dateObj.getMonth() + 1, g_d = dateObj.getDate();
   let jalaliMonthTerms = ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور", "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"];
@@ -616,19 +616,14 @@ function calcCurrentJalali(dateObj) {
   };
 }
 
-let baseAnchorDate = new Date(); // لنگر زمانی سیستم برای جلو و عقب رفتن روزها
+let baseAnchorDate = new Date(); 
 let currentEnergy = '';
 let currentStar = 0;
 let savedDays = {};
 let isEditMode = false;
 
-function getJalaliDate() {
-  return calcCurrentJalali(baseAnchorDate);
-}
-
-function fmtDate(){ 
-  return getJalaliDate().stamp; 
-}
+function getJalaliDate() { return calcCurrentJalali(baseAnchorDate); }
+function fmtDate(){ return getJalaliDate().stamp; }
 
 function faDate(){ 
   let baseDateStr = localStorage.getItem('aevPlanner_baseDateStr');
@@ -636,13 +631,11 @@ function faDate(){
     baseDateStr = getJalaliDate().stamp;
     localStorage.setItem('aevPlanner_baseDateStr', baseDateStr);
   }
-  
   let p1 = baseAnchorDate.toDateString();
   let p2 = new Date().toDateString();
   let diffTime = new Date(p1) - new Date(p2);
   let diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24)) + 1;
   if(diffDays <= 0) diffDays = 1;
-  
   const toFa = n => String(n).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
   return getJalaliDate().text + ' (روز ' + toFa(diffDays) + ')'; 
 }
@@ -852,31 +845,24 @@ function applyData(d){
   if(d.energy) selectEnergy(d.energy); else updateRing('');
   document.getElementById('energyReason').value=d.energyReason||'';
   
-  // بارگذاری پویا هدف‌های سالانه بر اساس تعداد ورودی‌ها در دیتای ذخیره‌شده
   const goalsCont = document.getElementById('annualGoals'); goalsCont.innerHTML = '';
   if(d.goals && d.goals.length) { d.goals.forEach(g => addItem('annualGoals', g)); } else { DEFAULT_GOALS.forEach(g => addItem('annualGoals', g)); }
 
-  // بارگذاری پویا ۳ کار بزرگ
   const t3Cont = document.getElementById('tasks3'); t3Cont.innerHTML = '';
   if(d.t3 && d.t3.length) { d.t3.forEach((val, i) => { addItem('tasks3', val); const rows = t3Cont.querySelectorAll('.task-row'); if(rows[i]) rows[i].querySelector('input[type=checkbox]').checked = !!(d.t3c && d.t3c[i]); }); } else { DEFAULT_TASKS.forEach(t => addItem('tasks3', t)); }
 
-  // بارگذاری پویا ۲ کار متوسط
   const t2Cont = document.getElementById('tasks2'); t2Cont.innerHTML = '';
   if(d.t2 && d.t2.length) { d.t2.forEach((val, i) => { addItem('tasks2', val); const rows = t2Cont.querySelectorAll('.task-row'); if(rows[i]) rows[i].querySelector('input[type=checkbox]').checked = !!(d.t2c && d.t2c[i]); }); } else { DEFAULT_TASKS.slice(0,2).forEach(t => addItem('tasks2', t)); }
 
-  // بارگذاری پویا ۱ کار شخصی
   const t1Cont = document.getElementById('tasks1'); t1Cont.innerHTML = '';
   if(d.t1 && d.t1.length) { d.t1.forEach((val, i) => { addItem('tasks1', val); const rows = t1Cont.querySelectorAll('.task-row'); if(rows[i]) rows[i].querySelector('input[type=checkbox]').checked = !!(d.t1c && d.t1c[i]); }); } else { addItem('tasks1', 'کار شخصی...'); }
 
-  // بارگذاری پویا جدول زمان‌بندی
   const tbBody = document.getElementById('tbBody'); tbBody.innerHTML = '';
   if (d.tb_list && d.tb_list.length) { d.tb_list.forEach(item => { addScheduleRow(item.hour, item.val); }); } else { DEFAULT_HOURS.forEach(h => addScheduleRow(h, '')); }
 
-  // بارگذاری پویا ایده‌ها
   const ideasCont = document.getElementById('ideas'); ideasCont.innerHTML = '';
   if(d.ideas && d.ideas.length) { d.ideas.forEach(id => addItem('ideas', id)); } else { DEFAULT_IDEAS.forEach(id => addItem('ideas', id)); }
 
-  // بارگذاری پویا چک‌لیست عادات ثابت
   const clCont = document.getElementById('checklist'); clCont.innerHTML = '';
   if(d.cl && d.cl.length) { d.cl.forEach(item => { addChecklistItem(item.label, item.min, item.done, item.hasMin !== false, 'ti-circle-dot', item.sub || ''); }); } else { DEFAULT_CHECKLIST.forEach(cl => addChecklistItem(cl.label, '', false, cl.hasMin, cl.icon, cl.sub)); }
 
@@ -896,40 +882,67 @@ async function handleConfirmSave(isConfirmed) {
     const key = fmtDate(); 
     const currentDayData = gatherData();
     
-    // ارسال دیتای اصلی روز همراه با متغیر رشته‌ای فشرده خام کل JSON روز
     const payload = {
       date: key,
       raw_json_string: JSON.stringify(currentDayData),
       data: currentDayData
     };
 
-    showToast('در حال ارسال داده‌ها به n8n...');
+    showToast('در حال همگام‌سازی و بروزرسانی جدول گوگل شیت...');
 
     try {
       const response = await fetch(N8N_WEBHOOK_URL, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
       });
 
       if(response.ok) {
-        showToast('اطلاعات روز شمسی ' + key + ' با موفقیت ارسال شد ✓');
+        showToast('تغییرات تاریخ شمسی ' + key + ' با موفقیت آپدیت شد ✓');
       } else {
         showToast('خطا در ارسال به n8n (کد خطا: ' + response.status + ')');
       }
     } catch (err) {
       console.error(err);
-      showToast('خطا در ارتباط با سرور n8n. ذخیره محلی انجام شد.');
+      showToast('خطا در ارتباط با سرور. تغییرات به صورت محلی فیکس شد.');
     }
-
   } else { 
     showToast('ذخیره‌سازی لغو شد'); 
   } 
 }
 
 function saveDaySilent() { const key = fmtDate(); savedDays[key] = gatherData(); try{localStorage.setItem('aevPlannerPro_v2', JSON.stringify(savedDays));}catch(e){} renderDaysNav(); }
+
+// ⚡ تابع هوشمند برای فراخوانی بلادرنگ دیتا از گوگل شیت هنگام لود یا تغییر روز
+async function fetchDayDataFromCloud(targetDateKey) {
+  showToast('در حال چک کردن ابزار ابر گوگل شیت...');
+  try {
+    const response = await fetch(`${N8N_WEBHOOK_URL}?date=${targetDateKey}`, {
+      method: "GET"
+    });
+    if (response.ok) {
+      const cloudResult = await response.json();
+      // اگر رکورد متناظری در شیت پیدا شد و فیلد خام وجود داشت
+      if (cloudResult && cloudResult.raw_json_string) {
+        const parsedCloudData = JSON.parse(cloudResult.raw_json_string);
+        savedDays[targetDateKey] = parsedCloudData;
+        localStorage.setItem('aevPlannerPro_v2', JSON.stringify(savedDays));
+        applyData(parsedCloudData);
+        showToast(`دیتای تاریخ ${targetDateKey} زنده از گوگل شیت لود شد ✓`);
+        return;
+      }
+    }
+  } catch (err) {
+    console.log("خطا در حالت آفلاین یا فراخوانی ابری:", err);
+  }
+  
+  // اگر ابری نبود از لوکال لود کند
+  if(savedDays[targetDateKey]) {
+    applyData(savedDays[targetDateKey]);
+  } else {
+    applyData(null);
+  }
+}
 
 function clearDayUI() {
   document.getElementById('mip').value=''; document.getElementById('mipDone').checked=false; document.getElementById('energyReason').value='';
@@ -944,17 +957,16 @@ function clearDay(){ clearDayUI(); initDefaultSections(); buildTB(); }
 function changeDay(delta){ 
   saveDaySilent(); 
   baseAnchorDate.setDate(baseAnchorDate.getDate() + delta); 
+  const key = fmtDate();
   document.getElementById('dateDisplay').textContent = faDate(); 
   clearDayUI(); 
-  applyData(savedDays[fmtDate()]); 
+  fetchDayDataFromCloud(key);
   renderDaysNav(); 
 }
 
 function goToDay(key){ 
   saveDaySilent(); 
   let p = key.split('-');
-  
-  // تبدیل معکوس تاریخ شمسی به شیء زمان سیستم برای ناوبری دقیق نواری
   let gy = parseInt(p[0]), jm = parseInt(p[1]), jd = parseInt(p[2]);
   let jy = gy - 979;
   let j_day_no = 365 * jy + Math.floor(jy / 33) * 8 + Math.floor((jy % 33 + 3) / 4);
@@ -990,7 +1002,7 @@ function goToDay(key){
   baseAnchorDate = new Date(g_y, g_m - 1, g_d);
   document.getElementById('dateDisplay').textContent = faDate(); 
   clearDayUI(); 
-  applyData(savedDays[key]); 
+  fetchDayDataFromCloud(key);
   renderDaysNav(); 
 }
 
@@ -1009,11 +1021,12 @@ function showToast(msg){ const t=document.getElementById('toastBox'); t.textCont
 
 document.getElementById('dateDisplay').textContent=faDate();
 
+// مقداردهی اولیه سیستم
 try{ 
   const saved=localStorage.getItem('aevPlannerPro_v2'); 
   if(saved) savedDays=JSON.parse(saved); 
   const key=fmtDate(); 
-  if(savedDays[key]) applyData(savedDays[key]); else { applyData(null); } 
+  fetchDayDataFromCloud(key);
 }catch(e){ 
   applyData(null); 
 }
@@ -1038,7 +1051,9 @@ document.getElementById('jsonFile').addEventListener('change',function(e){
   const reader=new FileReader(); 
   reader.onload=function(){ 
     try{ 
-      savedDays=JSON.parse(reader.result); 
+      const parsedData = JSON.parse(reader.result);
+      // مدیریت و یکی‌سازی اطلاعات آبجکت لود شده با دیتای فعلی
+      savedDays = Object.assign({}, savedDays, parsedData);
       localStorage.setItem('aevPlannerPro_v2', JSON.stringify(savedDays)); 
       
       const key=fmtDate(); 
@@ -1052,9 +1067,9 @@ document.getElementById('jsonFile').addEventListener('change',function(e){
         if(lastKey) goToDay(lastKey);
       }
       renderDaysNav();
-      showToast('فایل JSON با موفقیت بارگذاری و همگام‌سازی فیلدها انجام شد ✓'); 
+      showToast('فایل JSON با موفقیت بارگذاری، بازسازی و فیلدها کاملاً رندر شدند ✓'); 
     }catch(err){ 
-      alert('فایل JSON معتبر نیست'); 
+      alert('ساختار فایل JSON معتبر نیست.'); 
     } 
   }; 
   reader.readAsText(file); 
@@ -1069,27 +1084,22 @@ async function exportPDF(){ saveDaySilent(); expandTBForExport(); window.scrollT
 function exportHTML(){
   saveDaySilent();
   const currentData = gatherData();
-  
   document.querySelectorAll('textarea, input[type=text], input[type=number]').forEach(el => {
     el.setAttribute('value', el.value);
     if(el.tagName.toLowerCase() === 'textarea') el.textContent = el.value;
     el.setAttribute('readonly', 'readonly');
     el.setAttribute('disabled', 'disabled');
   });
-  
   document.querySelectorAll('input[type=checkbox]').forEach(el => {
     if(el.checked) el.setAttribute('checked', 'checked');
     else el.removeAttribute('checked');
     el.setAttribute('disabled', 'disabled');
     el.setAttribute('onclick', 'return false;');
   });
-
   let docString = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
-  
   const injectScript = `<script>
     document.addEventListener("DOMContentLoaded", function() {
       document.body.classList.add('html-preview-mode');
-      
       document.querySelectorAll('input, textarea').forEach(el => {
         el.setAttribute('readonly', true);
         el.setAttribute('disabled', true);
@@ -1100,38 +1110,24 @@ function exportHTML(){
         el.style.color = 'var(--text)';
         el.style.opacity = '0.9';
       });
-
-      document.querySelectorAll('.star').forEach(el => {
+      document.querySelectorAll('.star, .energy-opt').forEach(el => {
         el.removeAttribute('onclick');
         el.style.pointerEvents = 'none';
       });
-
-      document.querySelectorAll('.energy-opt').forEach(el => {
-        el.removeAttribute('onclick');
-        el.style.pointerEvents = 'none';
-      });
-      
       const staticData = ${JSON.stringify(currentData)};
-      if (typeof applyData === 'function') { 
-        applyData(staticData); 
-      }
-      
+      if (typeof applyData === 'function') { applyData(staticData); }
       setTimeout(() => {
         document.querySelectorAll('input, textarea').forEach(el => {
-          el.setAttribute('readonly', true);
-          el.setAttribute('disabled', true);
+          el.setAttribute('readonly', true); el.setAttribute('disabled', true);
           if(el.getAttribute('type') === 'checkbox') el.setAttribute('onclick', 'return false;');
         });
         document.querySelectorAll('.star, .energy-opt').forEach(el => {
-          el.style.pointerEvents = 'none';
-          el.removeAttribute('onclick');
+          el.style.pointerEvents = 'none'; el.removeAttribute('onclick');
         });
       }, 80);
     });
   <\/script>`;
-  
   docString = docString.replace('</body>', injectScript + '</body>');
-  
   const blob = new Blob([docString], {type:'text/html'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
