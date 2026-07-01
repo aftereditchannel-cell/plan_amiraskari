@@ -588,14 +588,9 @@ let DEFAULT_CHECKLIST = [
   {label: 'کار روی درآمد', hasMin: true, icon: 'ti-coins', sub: ''}
 ];
 
-let currentDate = new Date();
-let currentEnergy = '';
-let currentStar = 0;
-let savedDays = {};
-let isEditMode = false;
-
-function getJalaliDate(date) {
-  const g_y = date.getFullYear(), g_m = date.getMonth() + 1, g_d = date.getDate();
+// محاسبه مستقل تاریخ شمسی جاری بدون وابستگی به فرمت‌های میلادی
+function calcCurrentJalali(dateObj) {
+  const g_y = dateObj.getFullYear(), g_m = dateObj.getMonth() + 1, g_d = dateObj.getDate();
   let jalaliMonthTerms = ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور", "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"];
   let weekdays = ['یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنجشنبه', 'جمعه', 'شنبه'];
   let g_days_in_month = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
@@ -613,21 +608,44 @@ function getJalaliDate(date) {
   let jm = 0;
   for (let i = 0; i < 12; ++i) { if (j_day_no < j_days_in_month[i]) { jm = i; break; } j_day_no -= j_days_in_month[i]; }
   let jd = j_day_no + 1;
+  
   const toFa = n => String(n).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
-  return { text: weekdays[date.getDay()] + ' — ' + toFa(jd) + ' ' + jalaliMonthTerms[jm] + ' ' + toFa(jy), stamp: jy + '-' + String(jm+1).padStart(2,'0') + '-' + String(jd).padStart(2,'0') };
+  return {
+    text: weekdays[dateObj.getDay()] + ' — ' + toFa(jd) + ' ' + jalaliMonthTerms[jm] + ' ' + toFa(jy),
+    stamp: jy + '-' + (jm + 1) + '-' + jd
+  };
 }
 
-function getDayCounterText(date) {
-  let baseDate = localStorage.getItem('aevPlanner_baseDate');
-  if (!baseDate) { baseDate = date.toDateString(); localStorage.setItem('aevPlanner_baseDate', baseDate); }
-  const diffTime = Math.abs(new Date(date.toDateString()) - new Date(baseDate));
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-  const toFa = n => String(n).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
-  return ' (روز ' + toFa(diffDays) + ')';
+let baseAnchorDate = new Date(); // لنگر زمانی سیستم برای جلو و عقب رفتن روزها
+let currentEnergy = '';
+let currentStar = 0;
+let savedDays = {};
+let isEditMode = false;
+
+function getJalaliDate() {
+  return calcCurrentJalali(baseAnchorDate);
 }
 
-function fmtDate(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
-function faDate(d){ let jalali = getJalaliDate(d); return jalali.text + getDayCounterText(d); }
+function fmtDate(){ 
+  return getJalaliDate().stamp; 
+}
+
+function faDate(){ 
+  let baseDateStr = localStorage.getItem('aevPlanner_baseDateStr');
+  if (!baseDateStr) {
+    baseDateStr = getJalaliDate().stamp;
+    localStorage.setItem('aevPlanner_baseDateStr', baseDateStr);
+  }
+  
+  let p1 = baseAnchorDate.toDateString();
+  let p2 = new Date().toDateString();
+  let diffTime = new Date(p1) - new Date(p2);
+  let diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24)) + 1;
+  if(diffDays <= 0) diffDays = 1;
+  
+  const toFa = n => String(n).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
+  return getJalaliDate().text + ' (روز ' + toFa(diffDays) + ')'; 
+}
 
 function toggleEditMode() {
   isEditMode = !isEditMode;
@@ -834,25 +852,33 @@ function applyData(d){
   if(d.energy) selectEnergy(d.energy); else updateRing('');
   document.getElementById('energyReason').value=d.energyReason||'';
   
-  loadAnnualGoals();
+  // بارگذاری پویا هدف‌های سالانه بر اساس تعداد ورودی‌ها در دیتای ذخیره‌شده
+  const goalsCont = document.getElementById('annualGoals'); goalsCont.innerHTML = '';
+  if(d.goals && d.goals.length) { d.goals.forEach(g => addItem('annualGoals', g)); } else { DEFAULT_GOALS.forEach(g => addItem('annualGoals', g)); }
 
+  // بارگذاری پویا ۳ کار بزرگ
   const t3Cont = document.getElementById('tasks3'); t3Cont.innerHTML = '';
-  if(d.t3) { d.t3.forEach((val, i) => { addItem('tasks3', val); const rows = t3Cont.querySelectorAll('.task-row'); if(rows[i]) rows[i].querySelector('input[type=checkbox]').checked = !!d.t3c[i]; }); } else { DEFAULT_TASKS.forEach(t => addItem('tasks3', t)); }
+  if(d.t3 && d.t3.length) { d.t3.forEach((val, i) => { addItem('tasks3', val); const rows = t3Cont.querySelectorAll('.task-row'); if(rows[i]) rows[i].querySelector('input[type=checkbox]').checked = !!(d.t3c && d.t3c[i]); }); } else { DEFAULT_TASKS.forEach(t => addItem('tasks3', t)); }
 
+  // بارگذاری پویا ۲ کار متوسط
   const t2Cont = document.getElementById('tasks2'); t2Cont.innerHTML = '';
-  if(d.t2) { d.t2.forEach((val, i) => { addItem('tasks2', val); const rows = t2Cont.querySelectorAll('.task-row'); if(rows[i]) rows[i].querySelector('input[type=checkbox]').checked = !!d.t2c[i]; }); } else { DEFAULT_TASKS.slice(0,2).forEach(t => addItem('tasks2', t)); }
+  if(d.t2 && d.t2.length) { d.t2.forEach((val, i) => { addItem('tasks2', val); const rows = t2Cont.querySelectorAll('.task-row'); if(rows[i]) rows[i].querySelector('input[type=checkbox]').checked = !!(d.t2c && d.t2c[i]); }); } else { DEFAULT_TASKS.slice(0,2).forEach(t => addItem('tasks2', t)); }
 
+  // بارگذاری پویا ۱ کار شخصی
   const t1Cont = document.getElementById('tasks1'); t1Cont.innerHTML = '';
-  if(d.t1) { d.t1.forEach((val, i) => { addItem('tasks1', val); const rows = t1Cont.querySelectorAll('.task-row'); if(rows[i]) rows[i].querySelector('input[type=checkbox]').checked = !!d.t1c[i]; }); } else { addItem('tasks1', 'کار شخصی...'); }
+  if(d.t1 && d.t1.length) { d.t1.forEach((val, i) => { addItem('tasks1', val); const rows = t1Cont.querySelectorAll('.task-row'); if(rows[i]) rows[i].querySelector('input[type=checkbox]').checked = !!(d.t1c && d.t1c[i]); }); } else { addItem('tasks1', 'کار شخصی...'); }
 
+  // بارگذاری پویا جدول زمان‌بندی
   const tbBody = document.getElementById('tbBody'); tbBody.innerHTML = '';
-  if (d.tb_list && d.tb_list.length) { d.tb_list.forEach(item => { addScheduleRow(item.hour, item.val); }); } else if(d.tb) { DEFAULT_HOURS.forEach(h => { addScheduleRow(h, d.tb[h] || ''); }); } else { DEFAULT_HOURS.forEach(h => addScheduleRow(h, '')); }
+  if (d.tb_list && d.tb_list.length) { d.tb_list.forEach(item => { addScheduleRow(item.hour, item.val); }); } else { DEFAULT_HOURS.forEach(h => addScheduleRow(h, '')); }
 
+  // بارگذاری پویا ایده‌ها
   const ideasCont = document.getElementById('ideas'); ideasCont.innerHTML = '';
-  if(d.ideas) { d.ideas.forEach(id => addItem('ideas', id)); } else { DEFAULT_IDEAS.forEach(id => addItem('ideas', id)); }
+  if(d.ideas && d.ideas.length) { d.ideas.forEach(id => addItem('ideas', id)); } else { DEFAULT_IDEAS.forEach(id => addItem('ideas', id)); }
 
+  // بارگذاری پویا چک‌لیست عادات ثابت
   const clCont = document.getElementById('checklist'); clCont.innerHTML = '';
-  if(d.cl) { d.cl.forEach(item => { addChecklistItem(item.label, item.min, item.done, item.hasMin !== false, 'ti-circle-dot', item.sub || ''); }); } else { DEFAULT_CHECKLIST.forEach(cl => addChecklistItem(cl.label, '', false, cl.hasMin, cl.icon, cl.sub)); }
+  if(d.cl && d.cl.length) { d.cl.forEach(item => { addChecklistItem(item.label, item.min, item.done, item.hasMin !== false, 'ti-circle-dot', item.sub || ''); }); } else { DEFAULT_CHECKLIST.forEach(cl => addChecklistItem(cl.label, '', false, cl.hasMin, cl.icon, cl.sub)); }
 
   document.getElementById('rev1').value=d.rev1||''; document.getElementById('rev2').value=d.rev2||''; document.getElementById('rev3').value=d.rev3||''; document.getElementById('rev4').value=d.rev4||'';
   document.getElementById('mipTomorrow').value=d.mipTomorrow||'';
@@ -867,14 +893,17 @@ async function handleConfirmSave(isConfirmed) {
   modal.classList.remove('active'); 
   if (isConfirmed) { 
     saveDaySilent(); 
-    const key = fmtDate(currentDate); 
+    const key = fmtDate(); 
+    const currentDayData = gatherData();
     
+    // ارسال دیتای اصلی روز همراه با متغیر رشته‌ای فشرده خام کل JSON روز
     const payload = {
       date: key,
-      data: gatherData()
+      raw_json_string: JSON.stringify(currentDayData),
+      data: currentDayData
     };
 
-    showToast('در حال ارسال داده‌ها به گوگل شیت...');
+    showToast('در حال ارسال داده‌ها به n8n...');
 
     try {
       const response = await fetch(N8N_WEBHOOK_URL, {
@@ -886,7 +915,7 @@ async function handleConfirmSave(isConfirmed) {
       });
 
       if(response.ok) {
-        showToast('اطلاعات روز ' + key + ' با موفقیت به گوگل شیت ارسال شد ✓');
+        showToast('اطلاعات روز شمسی ' + key + ' با موفقیت ارسال شد ✓');
       } else {
         showToast('خطا در ارسال به n8n (کد خطا: ' + response.status + ')');
       }
@@ -900,7 +929,7 @@ async function handleConfirmSave(isConfirmed) {
   } 
 }
 
-function saveDaySilent() { const key = fmtDate(currentDate); savedDays[key] = gatherData(); try{localStorage.setItem('aevPlannerPro', JSON.stringify(savedDays));}catch(e){} renderDaysNav(); }
+function saveDaySilent() { const key = fmtDate(); savedDays[key] = gatherData(); try{localStorage.setItem('aevPlannerPro_v2', JSON.stringify(savedDays));}catch(e){} renderDaysNav(); }
 
 function clearDayUI() {
   document.getElementById('mip').value=''; document.getElementById('mipDone').checked=false; document.getElementById('energyReason').value='';
@@ -911,16 +940,96 @@ function clearDayUI() {
 }
 
 function clearDay(){ clearDayUI(); initDefaultSections(); buildTB(); }
-function changeDay(delta){ saveDaySilent(); const nd=new Date(currentDate); nd.setDate(nd.getDate()+delta); currentDate=nd; document.getElementById('dateDisplay').textContent=faDate(currentDate); clearDayUI(); applyData(savedDays[fmtDate(currentDate)]); renderDaysNav(); }
-function goToDay(key){ saveDaySilent(); const p=key.split('-'); currentDate=new Date(+p[0],+p[1]-1,+p[2]); document.getElementById('dateDisplay').textContent=faDate(currentDate); clearDayUI(); applyData(savedDays[key]); renderDaysNav(); }
-function renderDaysNav(){ const nav=document.getElementById('daysNav'); const keys=Object.keys(savedDays).sort().reverse().slice(0,12); if(!keys.length){nav.innerHTML='';return;} const cur=fmtDate(currentDate); nav.innerHTML=keys.map(k=>`<div class="day-chip${k===cur?' active':''}" onclick="goToDay('${k}')">${k}</div>`).join(''); }
+
+function changeDay(delta){ 
+  saveDaySilent(); 
+  baseAnchorDate.setDate(baseAnchorDate.getDate() + delta); 
+  document.getElementById('dateDisplay').textContent = faDate(); 
+  clearDayUI(); 
+  applyData(savedDays[fmtDate()]); 
+  renderDaysNav(); 
+}
+
+function goToDay(key){ 
+  saveDaySilent(); 
+  let p = key.split('-');
+  
+  // تبدیل معکوس تاریخ شمسی به شیء زمان سیستم برای ناوبری دقیق نواری
+  let gy = parseInt(p[0]), jm = parseInt(p[1]), jd = parseInt(p[2]);
+  let jy = gy - 979;
+  let j_day_no = 365 * jy + Math.floor(jy / 33) * 8 + Math.floor((jy % 33 + 3) / 4);
+  let j_days_in_month = [31, 31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 29];
+  for (let i = 0; i < jm - 1; ++i) j_day_no += j_days_in_month[i];
+  j_day_no += jd - 1;
+  let g_day_no = j_day_no + 79;
+  let g_y = 1600 + 400 * Math.floor(g_day_no / 146097);
+  g_day_no %= 146097;
+  let leap = true;
+  if (g_day_no >= 36525) {
+    g_day_no--;
+    g_y += 100 * Math.floor(g_day_no / 36524);
+    g_day_no %= 36524;
+    if (g_day_no >= 365) g_day_no++; else leap = false;
+  }
+  g_y += 4 * Math.floor(g_day_no / 1461);
+  g_day_no %= 1461;
+  if (g_day_no >= 366) {
+    leap = false;
+    g_day_no--;
+    g_y += Math.floor(g_day_no / 365);
+    g_day_no %= 365;
+  }
+  let g_days_in_month = [31, leap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  let g_m = 0;
+  for (let i = 0; i < 12; ++i) {
+    if (g_day_no < g_days_in_month[i]) { g_m = i + 1; break; }
+    g_day_no -= g_days_in_month[i];
+  }
+  let g_d = g_day_no + 1;
+  
+  baseAnchorDate = new Date(g_y, g_m - 1, g_d);
+  document.getElementById('dateDisplay').textContent = faDate(); 
+  clearDayUI(); 
+  applyData(savedDays[key]); 
+  renderDaysNav(); 
+}
+
+function renderDaysNav(){ 
+  const nav=document.getElementById('daysNav'); 
+  const keys=Object.keys(savedDays).sort((a,b) => {
+    let pa = a.split('-').map(Number), pb = b.split('-').map(Number);
+    return (pb[0] - pa[0]) || (pb[1] - pa[1]) || (pb[2] - pa[2]);
+  }).slice(0,12); 
+  if(!keys.length){nav.innerHTML='';return;} 
+  const cur=fmtDate(); 
+  nav.innerHTML=keys.map(k=>`<div class="day-chip${k===cur?' active':''}" onclick="goToDay('${k}')">${k}</div>`).join(''); 
+}
+
 function showToast(msg){ const t=document.getElementById('toastBox'); t.textContent=msg; t.style.opacity='1'; setTimeout(()=>t.style.opacity='0',2500); }
 
-document.getElementById('dateDisplay').textContent=faDate(currentDate);
-try{ const saved=localStorage.getItem('aevPlannerPro'); if(saved) savedDays=JSON.parse(saved); const key=fmtDate(currentDate); if(savedDays[key]) applyData(savedDays[key]); else { applyData(null); } }catch(e){ applyData(null); }
+document.getElementById('dateDisplay').textContent=faDate();
+
+try{ 
+  const saved=localStorage.getItem('aevPlannerPro_v2'); 
+  if(saved) savedDays=JSON.parse(saved); 
+  const key=fmtDate(); 
+  if(savedDays[key]) applyData(savedDays[key]); else { applyData(null); } 
+}catch(e){ 
+  applyData(null); 
+}
 renderDaysNav();
 
-function exportJSON(){ saveDaySilent(); const dataStr = JSON.stringify(savedDays,null,2); const blob = new Blob([dataStr], {type:'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'AEV-Planner-' + fmtDate(currentDate) + '.json'; a.click(); URL.revokeObjectURL(a.href); }
+function exportJSON(){ 
+  saveDaySilent(); 
+  const dataStr = JSON.stringify(savedDays,null,2); 
+  const blob = new Blob([dataStr], {type:'application/json'}); 
+  const a = document.createElement('a'); 
+  a.href = URL.createObjectURL(blob); 
+  a.download = 'AEV-Planner-' + fmtDate() + '.json'; 
+  a.click(); 
+  URL.revokeObjectURL(a.href); 
+}
+
 function importJSON(){ document.getElementById('jsonFile').click(); }
 
 document.getElementById('jsonFile').addEventListener('change',function(e){ 
@@ -930,17 +1039,20 @@ document.getElementById('jsonFile').addEventListener('change',function(e){
   reader.onload=function(){ 
     try{ 
       savedDays=JSON.parse(reader.result); 
-      localStorage.setItem('aevPlannerPro', JSON.stringify(savedDays)); 
+      localStorage.setItem('aevPlannerPro_v2', JSON.stringify(savedDays)); 
       
-      const key=fmtDate(currentDate); 
+      const key=fmtDate(); 
       if(savedDays[key]){ 
         applyData(savedDays[key]); 
       } else {
-        const lastKey = Object.keys(savedDays).sort().pop();
+        const lastKey = Object.keys(savedDays).sort((a,b) => {
+          let pa = a.split('-').map(Number), pb = b.split('-').map(Number);
+          return (pa[0] - pb[0]) || (pa[1] - pb[1]) || (pa[2] - pb[2]);
+        }).pop();
         if(lastKey) goToDay(lastKey);
       }
       renderDaysNav();
-      showToast('فایل JSON بارگذاری شد و اطلاعات بازنشانی گردید ✓'); 
+      showToast('فایل JSON با موفقیت بارگذاری و همگام‌سازی فیلدها انجام شد ✓'); 
     }catch(err){ 
       alert('فایل JSON معتبر نیست'); 
     } 
@@ -951,8 +1063,8 @@ document.getElementById('jsonFile').addEventListener('change',function(e){
 function expandTBForExport(){ const wrap=document.getElementById('tbWrap'); if(wrap) wrap.classList.add('export-expanded'); }
 function collapseTBAfterExport(){ const wrap=document.getElementById('tbWrap'); if(wrap) wrap.classList.remove('export-expanded'); }
 
-async function exportPNG(){ saveDaySilent(); expandTBForExport(); window.scrollTo(0,0); await new Promise(r=>setTimeout(r,50)); const canvas=await html2canvas(document.body,{ scale:2, useCORS:true, windowWidth:document.documentElement.scrollWidth, windowHeight:document.documentElement.scrollHeight, scrollX:0, scrollY:0 }); collapseTBAfterExport(); const link=document.createElement('a'); link.href=canvas.toDataURL('image/png'); link.download='AEV-Planner-'+fmtDate(currentDate)+'.png'; link.click(); showToast('PNG ذخیره شد ✓'); }
-async function exportPDF(){ saveDaySilent(); expandTBForExport(); window.scrollTo(0,0); await new Promise(r=>setTimeout(r,50)); const canvas=await html2canvas(document.body,{ scale:2, useCORS:true, windowWidth:document.documentElement.scrollWidth, windowHeight:document.documentElement.scrollHeight, scrollX:0, scrollY:0 }); collapseTBAfterExport(); const img=canvas.toDataURL('image/png'); const {jsPDF}=window.jspdf; const pdf=new jsPDF('p','mm','a4'); const pageWidth=210; const pageHeight=297; const imgHeight=(canvas.height*pageWidth)/canvas.width; let heightLeft=imgHeight; let position=0; pdf.addImage(img,'PNG',0,position,pageWidth,imgHeight); heightLeft-=pageHeight; while(heightLeft>0){ position=heightLeft-imgHeight; pdf.addPage(); pdf.addImage(img,'PNG',0,position,pageWidth,imgHeight); heightLeft-=pageHeight; } pdf.save('AEV-Planner-'+fmtDate(currentDate)+'.pdf'); showToast('PDF ذخیره شد ✓'); }
+async function exportPNG(){ saveDaySilent(); expandTBForExport(); window.scrollTo(0,0); await new Promise(r=>setTimeout(r,50)); const canvas=await html2canvas(document.body,{ scale:2, useCORS:true, windowWidth:document.documentElement.scrollWidth, windowHeight:document.documentElement.scrollHeight, scrollX:0, scrollY:0 }); collapseTBAfterExport(); const link=document.createElement('a'); link.href=canvas.toDataURL('image/png'); link.download='AEV-Planner-'+fmtDate()+'.png'; link.click(); showToast('PNG ذخیره شد ✓'); }
+async function exportPDF(){ saveDaySilent(); expandTBForExport(); window.scrollTo(0,0); await new Promise(r=>setTimeout(r,50)); const canvas=await html2canvas(document.body,{ scale:2, useCORS:true, windowWidth:document.documentElement.scrollWidth, windowHeight:document.documentElement.scrollHeight, scrollX:0, scrollY:0 }); collapseTBAfterExport(); const img=canvas.toDataURL('image/png'); const {jsPDF}=window.jspdf; const pdf=new jsPDF('p','mm','a4'); const pageWidth=210; const pageHeight=297; const imgHeight=(canvas.height*pageWidth)/canvas.width; let heightLeft=imgHeight; let position=0; pdf.addImage(img,'PNG',0,position,pageWidth,imgHeight); heightLeft-=pageHeight; while(heightLeft>0){ position=heightLeft-imgHeight; pdf.addPage(); pdf.addImage(img,'PNG',0,position,pageWidth,imgHeight); heightLeft-=pageHeight; } pdf.save('AEV-Planner-'+fmtDate()+'.pdf'); showToast('PDF ذخیره شد ✓'); }
 
 function exportHTML(){
   saveDaySilent();
@@ -1023,7 +1135,7 @@ function exportHTML(){
   const blob = new Blob([docString], {type:'text/html'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = 'AEV-Planner-Archive-' + fmtDate(currentDate) + '.html';
+  a.download = 'AEV-Planner-Archive-' + fmtDate() + '.html';
   a.click();
   URL.revokeObjectURL(a.href);
   showToast('HTML نمایشی ذخیره شد ✓');
