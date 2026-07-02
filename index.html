@@ -736,7 +736,19 @@ window.addEventListener('DOMContentLoaded', () => {
   }, 2000); // ۲ ثانیه تاخیر ثابت
 });
 
-const N8N_WEBHOOK_URL = "https://testjarvis12.app.n8n.cloud/webhook/aev-planner-webhook";
+const N8N_WEBHOOK_URL = "https://testai1223321.app.n8n.cloud/webhook/aev-planner-webhook";
+
+// پاسخ وبهوک را با احتیاط پارس می‌کند؛ اگر بدنه خالی یا نامعتبر باشد کرش نمی‌کند
+async function safeJsonParse(response) {
+  let text = '';
+  try { text = await response.text(); } catch (e) { return null; }
+  if (!text || !text.trim()) return null;
+  try { return JSON.parse(text); }
+  catch (e) {
+    console.error('پاسخ n8n قابل تجزیه JSON نبود. متن خام:', text);
+    return null;
+  }
+}
 
 let DEFAULT_HOURS = ['04:00','05:00','06:00','07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00','22:00','23:00'];
 let DEFAULT_GOALS = ['هدف اول...','هدف دوم...','هدف سوم...'];
@@ -751,6 +763,79 @@ let DEFAULT_CHECKLIST = [
   {label: 'کار روی پروژه‌ها', hasMin: true, icon: 'ti-device-laptop', sub: ''},
   {label: 'کار روی درآمد', hasMin: true, icon: 'ti-coins', sub: ''}
 ];
+
+
+// این تابع یک ردیف خام برگشتی از گوگل شیت (با ستون‌های فارسی) را
+// به همان ساختاری که gatherData() تولید می‌کند (برای استفاده در applyData) تبدیل می‌کند
+function reconstructDataFromSheetRow(record) {
+  const g = (key) => (record && record[key] !== undefined && record[key] !== null) ? record[key] : '';
+  const goals = [];
+  goals.push(g("هدف سالانه 1"));
+  goals.push(g("هدف سالانه 2"));
+  goals.push(g("هدف سالانه 3"));
+  goals.push(g("هدف سالانه 4"));
+  goals.push(g("هدف سالانه 5"));
+  const t3 = [], t3c = [];
+  t3.push(g("کار اولویت بالا 1")); t3c.push(g("وضعیت کار اولویت بالا 1") === 'انجام شد');
+  t3.push(g("کار اولویت بالا 2")); t3c.push(g("وضعیت کار اولویت بالا 2") === 'انجام شد');
+  t3.push(g("کار اولویت بالا 3")); t3c.push(g("وضعیت کار اولویت بالا 3") === 'انجام شد');
+  const t2 = [], t2c = [];
+  t2.push(g("کار اولویت متوسط 1")); t2c.push(g("وضعیت کار اولویت متوسط 1") === 'انجام شد');
+  t2.push(g("کار اولویت متوسط 2")); t2c.push(g("وضعیت کار اولویت متوسط 2") === 'انجام شد');
+  const t1 = [], t1c = [];
+  t1.push(g("کار شخصی 1")); t1c.push(g("وضعیت کار شخصی 1") === 'انجام شد');
+  t1.push(g("کار شخصی 2")); t1c.push(g("وضعیت کار شخصی 2") === 'انجام شد');
+  t1.push(g("کار شخصی 3")); t1c.push(g("وضعیت کار شخصی 3") === 'انجام شد');
+  const tb_list = [];
+  tb_list.push({ hour: g("زمان‌بندی ردیف 1 (ساعت)"), val: g("زمان‌بندی ردیف 1 (فعالیت)") });
+  tb_list.push({ hour: g("زمان‌بندی ردیف 2 (ساعت)"), val: g("زمان‌بندی ردیف 2 (فعالیت)") });
+  tb_list.push({ hour: g("زمان‌بندی ردیف 3 (ساعت)"), val: g("زمان‌بندی ردیف 3 (فعالیت)") });
+  tb_list.push({ hour: g("زمان‌بندی ردیف 4 (ساعت)"), val: g("زمان‌بندی ردیف 4 (فعالیت)") });
+  tb_list.push({ hour: g("زمان‌بندی ردیف 5 (ساعت)"), val: g("زمان‌بندی ردیف 5 (فعالیت)") });
+  tb_list.push({ hour: g("زمان‌بندی ردیف 6 (ساعت)"), val: g("زمان‌بندی ردیف 6 (فعالیت)") });
+  tb_list.push({ hour: g("زمان‌بندی ردیف 7 (ساعت)"), val: g("زمان‌بندی ردیف 7 (فعالیت)") });
+  tb_list.push({ hour: g("زمان‌بندی ردیف 8 (ساعت)"), val: g("زمان‌بندی ردیف 8 (فعالیت)") });
+  tb_list.push({ hour: g("زمان‌بندی ردیف 9 (ساعت)"), val: g("زمان‌بندی ردیف 9 (فعالیت)") });
+  tb_list.push({ hour: g("زمان‌بندی ردیف 10 (ساعت)"), val: g("زمان‌بندی ردیف 10 (فعالیت)") });
+  tb_list.push({ hour: g("زمان‌بندی ردیف 11 (ساعت)"), val: g("زمان‌بندی ردیف 11 (فعالیت)") });
+  tb_list.push({ hour: g("زمان‌بندی ردیف 12 (ساعت)"), val: g("زمان‌بندی ردیف 12 (فعالیت)") });
+  tb_list.push({ hour: g("زمان‌بندی ردیف 13 (ساعت)"), val: g("زمان‌بندی ردیف 13 (فعالیت)") });
+  tb_list.push({ hour: g("زمان‌بندی ردیف 14 (ساعت)"), val: g("زمان‌بندی ردیف 14 (فعالیت)") });
+  tb_list.push({ hour: g("زمان‌بندی ردیف 15 (ساعت)"), val: g("زمان‌بندی ردیف 15 (فعالیت)") });
+  tb_list.push({ hour: g("زمان‌بندی ردیف 16 (ساعت)"), val: g("زمان‌بندی ردیف 16 (فعالیت)") });
+  tb_list.push({ hour: g("زمان‌بندی ردیف 17 (ساعت)"), val: g("زمان‌بندی ردیف 17 (فعالیت)") });
+  tb_list.push({ hour: g("زمان‌بندی ردیف 18 (ساعت)"), val: g("زمان‌بندی ردیف 18 (فعالیت)") });
+  tb_list.push({ hour: g("زمان‌بندی ردیف 19 (ساعت)"), val: g("زمان‌بندی ردیف 19 (فعالیت)") });
+  tb_list.push({ hour: g("زمان‌بندی ردیف 20 (ساعت)"), val: g("زمان‌بندی ردیف 20 (فعالیت)") });
+  const ideas = [];
+  ideas.push(g("ایده پارک شده 1"));
+  ideas.push(g("ایده پارک شده 2"));
+  ideas.push(g("ایده پارک شده 3"));
+  ideas.push(g("ایده پارک شده 4"));
+  const DEFAULT_SUB_MAP = {};
+  DEFAULT_CHECKLIST.forEach(c => { DEFAULT_SUB_MAP[c.label] = c.sub; });
+  const cl = [];
+  cl.push({ label: g("عادت 1 (عنوان)"), done: g("عادت 1 (وضعیت)") === 'انجام شد', min: g("عادت 1 (مدت زمان)"), hasMin: true, sub: DEFAULT_SUB_MAP[g("عادت 1 (عنوان)")] || '' });
+  cl.push({ label: g("عادت 2 (عنوان)"), done: g("عادت 2 (وضعیت)") === 'انجام شد', min: g("عادت 2 (مدت زمان)"), hasMin: true, sub: DEFAULT_SUB_MAP[g("عادت 2 (عنوان)")] || '' });
+  cl.push({ label: g("عادت 3 (عنوان)"), done: g("عادت 3 (وضعیت)") === 'انجام شد', min: '', hasMin: false, sub: DEFAULT_SUB_MAP[g("عادت 3 (عنوان)")] || '' });
+  cl.push({ label: g("عادت 4 (عنوان)"), done: g("عادت 4 (وضعیت)") === 'انجام شد', min: g("عادت 4 (مدت زمان)"), hasMin: true, sub: DEFAULT_SUB_MAP[g("عادت 4 (عنوان)")] || '' });
+  cl.push({ label: g("عادت 5 (عنوان)"), done: g("عادت 5 (وضعیت)") === 'انجام شد', min: g("عادت 5 (مدت زمان)"), hasMin: true, sub: DEFAULT_SUB_MAP[g("عادت 5 (عنوان)")] || '' });
+  cl.push({ label: g("عادت 6 (عنوان)"), done: g("عادت 6 (وضعیت)") === 'انجام شد', min: g("عادت 6 (مدت زمان)"), hasMin: true, sub: DEFAULT_SUB_MAP[g("عادت 6 (عنوان)")] || '' });
+  cl.push({ label: g("عادت 7 (عنوان)"), done: g("عادت 7 (وضعیت)") === 'انجام شد', min: g("عادت 7 (مدت زمان)"), hasMin: true, sub: DEFAULT_SUB_MAP[g("عادت 7 (عنوان)")] || '' });
+  return {
+    mip: g("مهم‌ترین پیشرفت (MIP)"),
+    mipDone: g("وضعیت MIP") === 'انجام شد',
+    energy: g("میزان انرژی"),
+    energyReason: g("دلیل وضعیت انرژی"),
+    goals, t3, t3c, t2, t2c, t1, t1c, tb_list, ideas, cl,
+    rev1: g("بررسی ۱ (هدف سالانه)"),
+    rev2: g("بررسی ۲ (یادگیری امروز)"),
+    rev3: g("بررسی ۳ (موفقیت‌ها)"),
+    rev4: g("بررسی ۴ (بهبودها)"),
+    mipTomorrow: g("MIP فردا"),
+    star: Number(g("امتیاز روز")) || 0
+  };
+}
 
 let uploadedFilesHistory = []; 
 
@@ -875,7 +960,7 @@ async function loadOnlineSavedList() {
       throw new Error('کد ' + response.status);
     }
 
-    const cloudResult = await response.json();
+    const cloudResult = await safeJsonParse(response);
     const records = Array.isArray(cloudResult) ? cloudResult : (cloudResult ? [cloudResult] : []);
 
     const dates = records.map(extractDateFromRecord).filter(Boolean);
@@ -1214,7 +1299,7 @@ async function fetchDayDataFromCloud(targetDateKey) {
       console.error('n8n get error - status:', response.status, 'body:', bodyTxt);
       showToast('خطا در دریافت از n8n (کد ' + response.status + '). جزئیات در Console (F12)');
     } else {
-      const cloudResult = await response.json();
+      const cloudResult = await safeJsonParse(response);
       let record = null;
       if (Array.isArray(cloudResult)) {
         record = cloudResult.find(r => extractDateFromRecord(r) === targetDateKey) || null;
@@ -1223,8 +1308,14 @@ async function fetchDayDataFromCloud(targetDateKey) {
         record = cloudResult;
       }
 
-      if (record && record.raw_json_string) {
-        const parsedCloudData = JSON.parse(record.raw_json_string);
+      if (record) {
+        let parsedCloudData = null;
+        if (record.raw_json_string) {
+          try { parsedCloudData = JSON.parse(record.raw_json_string); } catch(e) { parsedCloudData = null; }
+        }
+        if (!parsedCloudData) {
+          parsedCloudData = reconstructDataFromSheetRow(record);
+        }
         savedDays[targetDateKey] = parsedCloudData;
         localStorage.setItem('aevPlannerPro_v2', JSON.stringify(savedDays));
         applyData(parsedCloudData);
