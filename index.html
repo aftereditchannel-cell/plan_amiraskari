@@ -428,7 +428,10 @@ table.tb tr:hover td{background:rgba(201,168,76,0.05)}
   border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 16px;
 }
 .menu-section:last-child { border-bottom: none; }
-.menu-title { font-size: 12px; font-weight: 700; color: var(--gold-light); margin-bottom: 10px; letter-spacing: 1px;}
+.menu-title { font-size: 12px; font-weight: 700; color: var(--gold-light); margin-bottom: 10px; letter-spacing: 1px; display: flex; align-items: center; justify-content: space-between; gap: 8px;}
+.menu-title-refresh { background: rgba(201,168,76,0.1); border: 1px solid var(--border2); color: var(--gold-light); border-radius: 8px; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 12px; transition: all .2s ease; }
+.menu-title-refresh:hover { background: rgba(201,168,76,0.22); transform: rotate(90deg); }
+.menu-title-refresh.spinning i { animation: spin 0.8s linear infinite; }
 .about-box { font-size: 11px; color: var(--text2); line-content: 1.6; text-align: justify; }
 .menu-actions-grid { display: grid; grid-template-columns: 1fr; gap: 8px; }
 .menu-actions-grid .btn-sec, .menu-actions-grid .btn-pri { text-align: center; width: 100%; border-radius: 12px; padding: 10px; font-size: 12px; }
@@ -479,6 +482,18 @@ table.tb tr:hover td{background:rgba(201,168,76,0.05)}
     <div class="menu-title"><i class="ti ti-database"></i> تاریخ‌های ذخیره شده (Local)</div>
     <div class="data-list" id="localDaysList">
       <div style="font-size: 10px; color: var(--text3); padding: 5px;">داده محلی یافت نشد</div>
+    </div>
+  </div>
+
+  <div class="menu-section">
+    <div class="menu-title">
+      <span><i class="ti ti-cloud"></i> دیتاهای ذخیره شده آنلاین (Google Sheet)</span>
+      <button class="menu-title-refresh" id="onlineRefreshBtn" onclick="loadOnlineSavedList()" title="بروزرسانی لیست از گوگل شیت">
+        <i class="ti ti-refresh"></i>
+      </button>
+    </div>
+    <div class="data-list" id="onlineDaysList">
+      <div style="font-size: 10px; color: var(--text3); padding: 5px;">در حال بارگذاری از گوگل شیت...</div>
     </div>
   </div>
 
@@ -797,6 +812,7 @@ function toggleMenu(show) {
     sidebar.classList.add('open');
     overlay.classList.add('open');
     renderLocalDaysInMenu();
+    loadOnlineSavedList();
   } else {
     sidebar.classList.remove('open');
     overlay.classList.remove('open');
@@ -814,6 +830,75 @@ function renderLocalDaysInMenu() {
     <div class="data-item" onclick="goToDay('${k}'); toggleMenu(false);">
       <span>تاریخ ${k}</span>
       <span class="item-tag">Local</span>
+    </div>
+  `).join('');
+}
+
+let onlineSavedDays = [];
+
+// یک رکورد خام برگشتی از گوگل شیت (از طریق n8n) را می‌گیرد و مقدار تاریخ آن را
+// با بررسی چند نام ستون احتمالی (فارسی/انگلیسی) یا از داخل raw_json_string استخراج می‌کند
+function extractDateFromRecord(r) {
+  if (!r || typeof r !== 'object') return null;
+  const candidateKeys = ['تاریخ', 'date', 'Date', 'تاریخ '];
+  for (const k of candidateKeys) {
+    if (r[k] !== undefined && r[k] !== null && String(r[k]).trim() !== '') {
+      return String(r[k]).trim();
+    }
+  }
+  if (r.raw_json_string) {
+    try {
+      const parsed = JSON.parse(r.raw_json_string);
+      if (parsed && parsed.date) return String(parsed.date).trim();
+    } catch (e) { /* نادیده گرفتن خطای پارس */ }
+  }
+  return null;
+}
+
+async function loadOnlineSavedList() {
+  const container = document.getElementById('onlineDaysList');
+  const btn = document.getElementById('onlineRefreshBtn');
+  if (btn) btn.classList.add('spinning');
+  if (container) container.innerHTML = '<div style="font-size: 10px; color: var(--text3); padding: 5px;">در حال دریافت لیست از گوگل شیت...</div>';
+
+  try {
+    const response = await fetch(N8N_WEBHOOK_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "get" })
+    });
+
+    if (!response.ok) throw new Error('کد خطا: ' + response.status);
+
+    const cloudResult = await response.json();
+    const records = Array.isArray(cloudResult) ? cloudResult : (cloudResult ? [cloudResult] : []);
+
+    const dates = records.map(extractDateFromRecord).filter(Boolean);
+    onlineSavedDays = [...new Set(dates)].sort((a, b) => {
+      let pa = a.split('-').map(Number), pb = b.split('-').map(Number);
+      return (pb[0] - pa[0]) || (pb[1] - pa[1]) || (pb[2] - pa[2]);
+    });
+
+    renderOnlineDaysInMenu();
+  } catch (err) {
+    console.log('خطا در دریافت لیست آنلاین:', err);
+    if (container) container.innerHTML = '<div style="font-size: 10px; color: var(--red); padding: 5px;">خطا در اتصال به گوگل شیت</div>';
+  } finally {
+    if (btn) btn.classList.remove('spinning');
+  }
+}
+
+function renderOnlineDaysInMenu() {
+  const container = document.getElementById('onlineDaysList');
+  if (!container) return;
+  if (!onlineSavedDays.length) {
+    container.innerHTML = '<div style="font-size: 10px; color: var(--text3); padding: 5px;">داده آنلاینی یافت نشد</div>';
+    return;
+  }
+  container.innerHTML = onlineSavedDays.map(k => `
+    <div class="data-item" onclick="goToDay('${k}'); toggleMenu(false);">
+      <span>تاریخ ${k}</span>
+      <span class="item-tag" style="background:rgba(45,189,140,0.15); color:var(--green);">Online</span>
     </div>
   `).join('');
 }
@@ -1117,8 +1202,14 @@ async function fetchDayDataFromCloud(targetDateKey) {
     
     if (response.ok) {
       const cloudResult = await response.json();
-      let record = Array.isArray(cloudResult) ? cloudResult[0] : cloudResult;
-      
+      let record = null;
+      if (Array.isArray(cloudResult)) {
+        record = cloudResult.find(r => extractDateFromRecord(r) === targetDateKey) || null;
+        if (!record && cloudResult.length === 1) record = cloudResult[0];
+      } else {
+        record = cloudResult;
+      }
+
       if (record && record.raw_json_string) {
         const parsedCloudData = JSON.parse(record.raw_json_string);
         savedDays[targetDateKey] = parsedCloudData;
@@ -1226,6 +1317,7 @@ try{
   applyData(null); 
 }
 renderDaysNav();
+loadOnlineSavedList();
 
 function exportJSON(){ 
   saveDaySilent(); 
