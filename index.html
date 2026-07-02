@@ -868,7 +868,12 @@ async function loadOnlineSavedList() {
       body: JSON.stringify({ action: "get" })
     });
 
-    if (!response.ok) throw new Error('کد خطا: ' + response.status);
+    if (!response.ok) {
+      let bodyTxt = '';
+      try { bodyTxt = await response.text(); } catch(e2){}
+      console.error('n8n list error - status:', response.status, 'body:', bodyTxt);
+      throw new Error('کد ' + response.status);
+    }
 
     const cloudResult = await response.json();
     const records = Array.isArray(cloudResult) ? cloudResult : (cloudResult ? [cloudResult] : []);
@@ -881,8 +886,8 @@ async function loadOnlineSavedList() {
 
     renderOnlineDaysInMenu();
   } catch (err) {
-    console.log('خطا در دریافت لیست آنلاین:', err);
-    if (container) container.innerHTML = '<div style="font-size: 10px; color: var(--red); padding: 5px;">خطا در اتصال به گوگل شیت</div>';
+    console.error('خطا در دریافت لیست آنلاین:', err);
+    if (container) container.innerHTML = '<div style="font-size: 10px; color: var(--red); padding: 5px;">خطا در اتصال به گوگل شیت (' + (err.message || 'network') + ') — جزئیات در Console (F12)</div>';
   } finally {
     if (btn) btn.classList.remove('spinning');
   }
@@ -1178,11 +1183,14 @@ async function handleConfirmSave(isConfirmed) {
       if(response.ok) {
         showToast('تغییرات تاریخ شمسی ' + key + ' با موفقیت آپدیت شد ✓');
       } else {
-        showToast('خطا در ارسال به n8n (کد خطا: ' + response.status + ')');
+        let bodyTxt = '';
+        try { bodyTxt = await response.text(); } catch(e2){}
+        console.error('n8n save error - status:', response.status, 'body:', bodyTxt);
+        showToast('خطا در ارسال به n8n (کد ' + response.status + '). جزئیات در Console مرورگر (F12)');
       }
     } catch (err) {
-      console.error(err);
-      showToast('خطا در ارتباط با سرور. تغییرات به صورت محلی فیکس شد.');
+      console.error('n8n save network/CORS error:', err);
+      showToast('عدم اتصال به وبهوک n8n (شبکه/CORS). جزئیات در Console (F12) — تغییرات فقط محلی ذخیره شد.');
     }
   } else { 
     showToast('ذخیره‌سازی لغو شد'); 
@@ -1199,8 +1207,13 @@ async function fetchDayDataFromCloud(targetDateKey) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action: "get", date: targetDateKey })
     });
-    
-    if (response.ok) {
+
+    if (!response.ok) {
+      let bodyTxt = '';
+      try { bodyTxt = await response.text(); } catch(e2){}
+      console.error('n8n get error - status:', response.status, 'body:', bodyTxt);
+      showToast('خطا در دریافت از n8n (کد ' + response.status + '). جزئیات در Console (F12)');
+    } else {
       const cloudResult = await response.json();
       let record = null;
       if (Array.isArray(cloudResult)) {
@@ -1220,7 +1233,8 @@ async function fetchDayDataFromCloud(targetDateKey) {
       }
     }
   } catch (err) {
-    console.log("خطا در ارتباط ابری:", err);
+    console.error('n8n get network/CORS error:', err);
+    showToast('عدم اتصال به وبهوک n8n (شبکه/CORS). جزئیات در Console (F12)');
   }
   
   if(savedDays[targetDateKey]) {
