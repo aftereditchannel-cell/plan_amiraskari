@@ -31,13 +31,53 @@ body{
   background-attachment:fixed;
 }
 img,canvas,svg{max-width:100%}
-@media(max-width:768px){
-.app{padding:10px}
-.topbar{flex-direction:column;align-items:stretch}
-.date-pill,.save-btn,.edit-toggle-btn{width:100%;justify-content:center}
-.card{padding:10px}
-.tb-wrap{max-height:none;overflow:visible}
+
+/* ✨ استایل‌های صفحه لودینگ اختصاصی ✨ */
+.app-loader {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: #0A0A0C; z-index: 99999;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  transition: opacity 0.5s ease, visibility 0.5s ease;
 }
+.app-loader.fade-out {
+  opacity: 0; visibility: hidden; pointer-events: none;
+}
+.loader-spinner {
+  width: 50px; height: 50px;
+  border: 3px solid rgba(201, 168, 76, 0.1);
+  border-radius: 50%; border-top-color: var(--gold-light);
+  animation: spin 1s ease-in-out infinite;
+  margin-bottom: 15px;
+  box-shadow: 0 0 15px rgba(201,168,76,0.2);
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@media(max-width:768px){
+  .app{padding:10px}
+  .topbar{flex-direction:column;align-items:stretch}
+  .date-pill,.save-btn,.edit-toggle-btn{width:100%;justify-content:center}
+  .card{
+    padding:10px;
+    content-visibility: auto;
+    contain-intrinsic-size: auto 200px;
+    backdrop-filter: blur(8px) saturate(140%) !important;
+    -webkit-backdrop-filter: blur(8px) saturate(140%) !important;
+    transform: translateZ(0);
+    will-change: transform;
+  }
+  .tb-wrap{max-height:none;overflow:visible}
+  body {
+    background-attachment: scroll;
+  }
+  .sidebar-menu {
+    width: 280px;
+    backdrop-filter: blur(15px) !important;
+    -webkit-backdrop-filter: blur(15px) !important;
+  }
+}
+
 .app{max-width:960px;margin:0 auto;padding:16px}
 
 .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;gap:12px;flex-wrap:wrap}
@@ -269,7 +309,7 @@ table.tb tr:hover td{background:rgba(201,168,76,0.05)}
 .rev-q{font-size:10px;color:var(--text3);margin-bottom:5px}
 .rev-bottom{display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-top:10px}
 .star-row{display:flex;gap:4px;flex-wrap:wrap}
-.star animate{font-size:20px;cursor:pointer;color:rgba(255,255,255,0.12);transition:color 0.15s, transform 0.15s}
+.star{font-size:20px;cursor:pointer;color:rgba(255,255,255,0.12);transition:color 0.15s, transform 0.15s}
 .star:hover{transform:scale(1.15)}
 .star.lit{color:var(--gold-light);text-shadow:0 0 8px rgba(201,168,76,0.5)}
 .star-lbl{font-size:10px;color:var(--text3);margin-bottom:4px}
@@ -348,9 +388,112 @@ table.tb tr:hover td{background:rgba(201,168,76,0.05)}
   pointer-events: none !important;
   cursor: default !important;
 }
+
+.hamburger-btn {
+  background: var(--glass-bg-soft);
+  border: 1px solid var(--glass-border);
+  color: var(--gold-light);
+  width: 38px; height: 38px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 18px; transition: all 0.25s ease;
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  box-shadow: var(--glass-shadow);
+}
+.hamburger-btn:hover {
+  border-color: var(--gold);
+  background: rgba(201,168,76,0.1);
+}
+.sidebar-menu {
+  position: fixed; top: 0; right: -320px; width: 320px; height: 100vh;
+  background: rgba(20, 20, 24, 0.85); backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px); border-left: 1px solid var(--border);
+  box-shadow: -10px 0 40px rgba(0,0,0,0.7); z-index: 10005;
+  transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 24px; display: flex; flex-direction: column; gap: 20px;
+  overflow-y: auto;
+}
+.sidebar-menu.open { right: 0; }
+.sidebar-overlay {
+  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 10002;
+  opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+}
+.sidebar-overlay.open { opacity: 1; pointer-events: auto; }
+.menu-close-btn {
+  align-self: flex-start; background: none; border: none; color: var(--text2);
+  cursor: pointer; font-size: 20px; transition: color 0.2s;
+}
+.menu-close-btn:hover { color: var(--red); }
+.menu-section {
+  border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 16px;
+}
+.menu-section:last-child { border-bottom: none; }
+.menu-title { font-size: 12px; font-weight: 700; color: var(--gold-light); margin-bottom: 10px; letter-spacing: 1px;}
+.about-box { font-size: 11px; color: var(--text2); line-content: 1.6; text-align: justify; }
+.menu-actions-grid { display: grid; grid-template-columns: 1fr; gap: 8px; }
+.menu-actions-grid .btn-sec, .menu-actions-grid .btn-pri { text-align: center; width: 100%; border-radius: 12px; padding: 10px; font-size: 12px; }
+.data-list { max-height: 140px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; margin-top: 5px; }
+.data-list::-webkit-scrollbar { width: 3px; }
+.data-list::-webkit-scrollbar-thumb { background: var(--border2); }
+.data-item {
+  font-size: 11px; padding: 6px 10px; background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; color: var(--text2);
+  cursor: pointer; transition: all 0.2s; display: flex; justify-content: space-between; align-items: center;
+}
+.data-item:hover { background: rgba(201,168,76,0.08); border-color: var(--border2); color: var(--gold-light); }
+.data-item .item-tag { font-size: 9px; background: rgba(201,168,76,0.15); color: var(--gold-light); padding: 2px 6px; border-radius: 4px; }
 </style>
 </head>
 <body>
+
+<div class="app-loader" id="appLoader">
+  <div class="loader-spinner"></div>
+  <div class="logo-block" style="text-align: center;">
+    <div class="logo" style="font-size: 18px; margin-bottom: 5px;">A·E·V PLANNER</div>
+    <div class="tagline" style="color: var(--text2);">در حال بارگذاری سیستم برنامه‌ریزی...</div>
+  </div>
+</div>
+
+<div class="sidebar-overlay" id="menuOverlay" onclick="toggleMenu(false)"></div>
+<div class="sidebar-menu" id="sidebarMenu">
+  <button class="menu-close-btn" onclick="toggleMenu(false)"><i class="ti ti-x"></i></button>
+  
+  <div class="menu-section" style="text-align: center;">
+    <div class="logo-block">
+      <div class="logo" style="font-size: 16px;">A·E·V PLANNER</div>
+      <div class="tagline">یک روز منظم — یک قدم به هدف‌های بزرگ‌تر</div>
+    </div>
+    <div class="about-box" style="margin-top: 15px;">
+      <p><strong>درباره من:</strong> این سیستم برنامه‌ریزی هوشمند با تکیه بر متدولوژی‌های مدیریت زمان متمرکز (قانون ۳-۲-۱ و Time Blocking) توسعه یافته تا به شما در مسیر دستیابی به اهداف سالانه پایداری ببخشد.</p>
+    </div>
+  </div>
+
+  <div class="menu-section">
+    <div class="menu-title"><i class="ti ti-file-import"></i> فایل‌های JSON بارگذاری شده</div>
+    <div class="data-list" id="uploadedJsonList">
+      <div style="font-size: 10px; color: var(--text3); padding: 5px;">هیچ فایلی آپلود نشده است</div>
+    </div>
+  </div>
+
+  <div class="menu-section">
+    <div class="menu-title"><i class="ti ti-database"></i> تاریخ‌های ذخیره شده (Local)</div>
+    <div class="data-list" id="localDaysList">
+      <div style="font-size: 10px; color: var(--text3); padding: 5px;">داده محلی یافت نشد</div>
+    </div>
+  </div>
+
+  <div class="menu-section">
+    <div class="menu-title"><i class="ti ti-settings"></i> عملیات و خروجی‌ها</div>
+    <div class="menu-actions-grid">
+      <button class="btn-sec" onclick="importJSON()"><i class="ti ti-file-upload"></i> بارگذاری دسته‌ای JSON</button>
+      <button class="btn-sec" onclick="exportJSON()"><i class="ti ti-file-download"></i> دانلود JSON کل</button>
+      <button class="btn-sec" onclick="exportPNG()"><i class="ti ti-photo"></i> خروجی تصویر PNG</button>
+      <button class="btn-sec" onclick="exportPDF()"><i class="ti ti-file-text"></i> خروجی سند PDF</button>
+      <button class="btn-sec" onclick="exportHTML()"><i class="ti ti-brand-html5"></i> دانلود آرشیو HTML</button>
+      <button class="btn-sec" style="color: var(--red);" onclick="clearDay()"><i class="ti ti-trash"></i> پاک کردن فرم امروز</button>
+    </div>
+  </div>
+</div>
 
 <div class="app">
   <div id="toastBox" class="toast-box"></div>
@@ -367,10 +510,13 @@ table.tb tr:hover td{background:rgba(201,168,76,0.05)}
   </div>
 
   <div class="topbar">
-    <div class="logo-block">
-      <div class="logo">A·E·V PLANNER</div>
-      <div class="tagline">یک روز منظم — یک قدم به هدف‌های بزرگ‌تر</div>
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <button class="hamburger-btn" onclick="toggleMenu(true)" title="منوی اصلی"><i class="ti ti-menu-2"></i></button>
+      <div class="logo-block">
+        <div class="logo">A·E·V PLANNER</div>
+      </div>
     </div>
+    
     <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
       <button class="edit-toggle-btn" id="editToggleBtn" onclick="toggleEditMode()">
         <i class="ti ti-pencil" id="editIcon"></i> <span id="editBtnText">حالت ویرایش</span>
@@ -528,10 +674,10 @@ table.tb tr:hover td{background:rgba(201,168,76,0.05)}
       </div>
     </div>
     <div class="rev-grid">
-      <div><div class="rev-q">امروز به کدام هدف سالانه نزدیک شدم？</div><textarea id="rev1" rows="2" placeholder="..."></textarea></div>
+      <div><div class="rev-q">امروز به کدام هدف سالانه نزدیک شدم؟</div><textarea id="rev1" rows="2" placeholder="..."></textarea></div>
       <div><div class="rev-q">مهم‌ترین چیزی که امروز یاد گرفتم:</div><textarea id="rev2" rows="2" placeholder="..."></textarea></div>
-      <div><div class="rev-q">چه چیزی خوب پیش رفت？</div><textarea id="rev3" rows="2" placeholder="..."></textarea></div>
-      <div><div class="rev-q">چه چیزی را می‌توانم بهتر کنم？</div><textarea id="rev4" rows="2" placeholder="..."></textarea></div>
+      <div><div class="rev-q">چه چیزی خوب پیش رفت؟</div><textarea id="rev3" rows="2" placeholder="..."></textarea></div>
+      <div><div class="rev-q">چه چیزی را می‌توانم بهتر کنم؟</div><textarea id="rev4" rows="2" placeholder="..."></textarea></div>
     </div>
     <div class="rev-bottom">
       <div style="flex:1;min-width:200px"><div class="rev-q">MIP فردا:</div><input type="text" id="mipTomorrow" placeholder="مهم‌ترین کار فردا..."></div>
@@ -557,14 +703,9 @@ table.tb tr:hover td{background:rgba(201,168,76,0.05)}
   </div>
 
   <div class="save-bar">
-    <button class="btn-sec" onclick="clearDay()">پاک کردن</button>
-    <button class="btn-sec" onclick="exportJSON()">دانلود JSON</button>
-    <button class="btn-sec" onclick="importJSON()">بارگذاری JSON</button>
-    <button class="btn-sec" onclick="exportPNG()">دانلود PNG</button>
-    <button class="btn-sec" onclick="exportPDF()">دانلود PDF</button>
-    <button class="btn-sec" onclick="exportHTML()">دانلود HTML</button>
+    <button class="btn-sec" onclick="toggleMenu(true)"><i class="ti ti-menu-2"></i> منوی ابزارها</button>
     <button class="btn-pri" onclick="saveDay()">ذخیره روز</button>
-    <input type="file" id="jsonFile" accept=".json" style="display:none">
+    <input type="file" id="jsonFile" accept=".json" multiple style="display:none">
   </div>
 </div>
 
@@ -572,7 +713,14 @@ table.tb tr:hover td{background:rgba(201,168,76,0.05)}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script>
-// آدرس وب‌هوک اصلی شما در n8n
+// 🕒 منطق پنهان‌سازی لودینگ بعد از ۲ ثانیه کامل
+window.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => {
+    const loader = document.getElementById('appLoader');
+    if(loader) loader.classList.add('fade-out');
+  }, 2000); // ۲ ثانیه تاخیر ثابت
+});
+
 const N8N_WEBHOOK_URL = "https://testai1223321.app.n8n.cloud/webhook/aev-planner-webhook";
 
 let DEFAULT_HOURS = ['04:00','05:00','06:00','07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00','22:00','23:00'];
@@ -588,6 +736,8 @@ let DEFAULT_CHECKLIST = [
   {label: 'کار روی پروژه‌ها', hasMin: true, icon: 'ti-device-laptop', sub: ''},
   {label: 'کار روی درآمد', hasMin: true, icon: 'ti-coins', sub: ''}
 ];
+
+let uploadedFilesHistory = []; 
 
 function calcCurrentJalali(dateObj) {
   const g_y = dateObj.getFullYear(), g_m = dateObj.getMonth() + 1, g_d = dateObj.getDate();
@@ -638,6 +788,48 @@ function faDate(){
   if(diffDays <= 0) diffDays = 1;
   const toFa = n => String(n).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
   return getJalaliDate().text + ' (روز ' + toFa(diffDays) + ')'; 
+}
+
+function toggleMenu(show) {
+  const sidebar = document.getElementById('sidebarMenu');
+  const overlay = document.getElementById('menuOverlay');
+  if(show) {
+    sidebar.classList.add('open');
+    overlay.classList.add('open');
+    renderLocalDaysInMenu();
+  } else {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('open');
+  }
+}
+
+function renderLocalDaysInMenu() {
+  const container = document.getElementById('localDaysList');
+  const keys = Object.keys(savedDays).sort();
+  if(!keys.length) {
+    container.innerHTML = '<div style="font-size: 10px; color: var(--text3); padding: 5px;">داده محلی یافت نشد</div>';
+    return;
+  }
+  container.innerHTML = keys.map(k => `
+    <div class="data-item" onclick="goToDay('${k}'); toggleMenu(false);">
+      <span>تاریخ ${k}</span>
+      <span class="item-tag">Local</span>
+    </div>
+  `).join('');
+}
+
+function updateUploadedJsonListUI() {
+  const container = document.getElementById('uploadedJsonList');
+  if(!uploadedFilesHistory.length) {
+    container.innerHTML = '<div style="font-size: 10px; color: var(--text3); padding: 5px;">هیچ فایلی آپلود نشده است</div>';
+    return;
+  }
+  container.innerHTML = uploadedFilesHistory.map(f => `
+    <div class="data-item" onclick="goToDay('${f.date}'); toggleMenu(false);" title="بارگذاری اطلاعات این تاریخ">
+      <span style="max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${f.name}</span>
+      <span class="item-tag" style="background:rgba(45,189,140,0.15); color:var(--green);">${f.date}</span>
+    </div>
+  `).join('');
 }
 
 function toggleEditMode() {
@@ -914,7 +1106,6 @@ async function handleConfirmSave(isConfirmed) {
 
 function saveDaySilent() { const key = fmtDate(); savedDays[key] = gatherData(); try{localStorage.setItem('aevPlannerPro_v2', JSON.stringify(savedDays));}catch(e){} renderDaysNav(); }
 
-// ⚡ تابع هوشمند اصلاح شده برای فراخوانی بلادرنگ دیتا از گوگل شیت با متد POST جهت حذف محدودیت مرورگرها
 async function fetchDayDataFromCloud(targetDateKey) {
   showToast('در حال دریافت اطلاعات زنده از گوگل شیت...');
   try {
@@ -1049,43 +1240,63 @@ function exportJSON(){
 
 function importJSON(){ document.getElementById('jsonFile').click(); }
 
-document.getElementById('jsonFile').addEventListener('change',function(e){ 
-  const file=e.target.files[0]; 
-  if(!file) return; 
-  const reader=new FileReader(); 
-  reader.onload=function(){ 
-    try{ 
-      const parsedData = JSON.parse(reader.result);
-      savedDays = Object.assign({}, savedDays, parsedData);
-      localStorage.setItem('aevPlannerPro_v2', JSON.stringify(savedDays)); 
-      
-      const key=fmtDate(); 
-      if(savedDays[key]){ 
-        applyData(savedDays[key]); 
-      } else {
-        const lastKey = Object.keys(savedDays).sort((a,b) => {
-          let pa = a.split('-').map(Number), pb = b.split('-').map(Number);
-          return (pa[0] - pb[0]) || (pa[1] - pb[1]) || (pa[2] - pb[2]);
-        }).pop();
-        if(lastKey) goToDay(lastKey);
-      }
-      renderDaysNav();
-      showToast('فایل JSON با موفقیت بارگذاری، بازسازی و فیلدها کاملاً رندر شدند ✓'); 
-    }catch(err){ 
-      alert('ساختار فایل JSON معتبر نیست.'); 
-    } 
-  }; 
-  reader.readAsText(file); 
+document.getElementById('jsonFile').addEventListener('change', async function(e){ 
+  const files = e.target.files; 
+  if(!files.length) return; 
+  
+  let successCount = 0;
+  
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    await new Promise((resolve) => {
+      const reader = new FileReader(); 
+      reader.onload = function() { 
+        try { 
+          const parsedData = JSON.parse(reader.result);
+          savedDays = Object.assign({}, savedDays, parsedData);
+          
+          Object.keys(parsedData).forEach(dateKey => {
+            if(!uploadedFilesHistory.some(f => f.date === dateKey)) {
+              uploadedFilesHistory.push({
+                name: file.name,
+                date: dateKey
+              });
+            }
+          });
+          
+          successCount++;
+        } catch(err) { 
+          console.error('ساختار نامعتبر در فایل: ' + file.name);
+        } 
+        resolve();
+      }; 
+      reader.readAsText(file); 
+    });
+  }
+  
+  localStorage.setItem('aevPlannerPro_v2', JSON.stringify(savedDays)); 
+  const key = fmtDate(); 
+  if(savedDays[key]){ 
+    applyData(savedDays[key]); 
+  } else {
+    const lastKey = Object.keys(savedDays).sort().pop();
+    if(lastKey) goToDay(lastKey);
+  }
+  
+  renderDaysNav();
+  updateUploadedJsonListUI();
+  showToast(`${successCount} فایل JSON با موفقیت بارگذاری و ادغام شدند ✓`); 
 });
 
 function expandTBForExport(){ const wrap=document.getElementById('tbWrap'); if(wrap) wrap.classList.add('export-expanded'); }
 function collapseTBAfterExport(){ const wrap=document.getElementById('tbWrap'); if(wrap) wrap.classList.remove('export-expanded'); }
 
-async function exportPNG(){ saveDaySilent(); expandTBForExport(); window.scrollTo(0,0); await new Promise(r=>setTimeout(r,50)); const canvas=await html2canvas(document.body,{ scale:2, useCORS:true, windowWidth:document.documentElement.scrollWidth, windowHeight:document.documentElement.scrollHeight, scrollX:0, scrollY:0 }); collapseTBAfterExport(); const link=document.createElement('a'); link.href=canvas.toDataURL('image/png'); link.download='AEV-Planner-'+fmtDate()+'.png'; link.click(); showToast('PNG ذخیره شد ✓'); }
-async function exportPDF(){ saveDaySilent(); expandTBForExport(); window.scrollTo(0,0); await new Promise(r=>setTimeout(r,50)); const canvas=await html2canvas(document.body,{ scale:2, useCORS:true, windowWidth:document.documentElement.scrollWidth, windowHeight:document.documentElement.scrollHeight, scrollX:0, scrollY:0 }); collapseTBAfterExport(); const img=canvas.toDataURL('image/png'); const {jsPDF}=window.jspdf; const pdf=new jsPDF('p','mm','a4'); const pageWidth=210; const pageHeight=297; const imgHeight=(canvas.height*pageWidth)/canvas.width; let heightLeft=imgHeight; let position=0; pdf.addImage(img,'PNG',0,position,pageWidth,imgHeight); heightLeft-=pageHeight; while(heightLeft>0){ position=heightLeft-imgHeight; pdf.addPage(); pdf.addImage(img,'PNG',0,position,pageWidth,imgHeight); heightLeft-=pageHeight; } pdf.save('AEV-Planner-'+fmtDate()+'.pdf'); showToast('PDF ذخیره شد ✓'); }
+async function exportPNG(){ saveDaySilent(); toggleMenu(false); expandTBForExport(); window.scrollTo(0,0); await new Promise(r=>setTimeout(r,50)); const canvas=await html2canvas(document.body,{ scale:2, useCORS:true, windowWidth:document.documentElement.scrollWidth, windowHeight:document.documentElement.scrollHeight, scrollX:0, scrollY:0 }); collapseTBAfterExport(); const link=document.createElement('a'); link.href=canvas.toDataURL('image/png'); link.download='AEV-Planner-'+fmtDate()+'.png'; link.click(); showToast('PNG ذخیره شد ✓'); }
+async function exportPDF(){ saveDaySilent(); toggleMenu(false); expandTBForExport(); window.scrollTo(0,0); await new Promise(r=>setTimeout(r,50)); const canvas=await html2canvas(document.body,{ scale:2, useCORS:true, windowWidth:document.documentElement.scrollWidth, windowHeight:document.documentElement.scrollHeight, scrollX:0, scrollY:0 }); collapseTBAfterExport(); const img=canvas.toDataURL('image/png'); const {jsPDF}=window.jspdf; const pdf=new jsPDF('p','mm','a4'); const pageWidth=210; const pageHeight=297; const imgHeight=(canvas.height*pageWidth)/canvas.width; let heightLeft=imgHeight; let position=0; pdf.addImage(img,'PNG',0,position,pageWidth,imgHeight); heightLeft-=pageHeight; while(heightLeft>0){ position=heightLeft-imgHeight; pdf.addPage(); pdf.addImage(img,'PNG',0,position,pageWidth,imgHeight); heightLeft-=pageHeight; } pdf.save('AEV-Planner-'+fmtDate()+'.pdf'); showToast('PDF ذخیره شد ✓'); }
 
 function exportHTML(){
   saveDaySilent();
+  toggleMenu(false);
   const currentData = gatherData();
   document.querySelectorAll('textarea, input[type=text], input[type=number]').forEach(el => {
     el.setAttribute('value', el.value);
